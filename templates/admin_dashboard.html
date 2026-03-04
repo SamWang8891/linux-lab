@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}管理面板 — Linux Lab{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:1.5rem">⚙️ 管理面板</h2>
+
+<div class="grid-2">
+    <div class="card">
+        <h2>📊 系統狀態</h2>
+        <div id="sys-stats" style="margin-top:1rem">
+            <p>載入中...</p>
+        </div>
+        <button class="btn btn-secondary" onclick="loadStats()" style="margin-top:1rem">重新整理</button>
+    </div>
+
+    <div class="card">
+        <h2>📧 Email 白名單</h2>
+        <form method="POST" action="{{ url_for('add_whitelist') }}">
+            <textarea name="emails" rows="4" placeholder="每行一個 Email&#10;student1@example.com&#10;student2@example.com"></textarea>
+            <button class="btn btn-primary">新增</button>
+        </form>
+        <div style="margin-top:1rem;max-height:200px;overflow-y:auto">
+            {% for w in whitelist %}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;border-bottom:1px solid #334155">
+                <span style="font-size:0.85rem">{{ w.email }}</span>
+                <form method="POST" action="{{ url_for('delete_whitelist', wid=w.id) }}" style="margin:0">
+                    <button class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.75rem">移除</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>👥 學生列表</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>機器名稱</th>
+                <th>IP</th>
+                <th>佈建狀態</th>
+                <th>機器狀態</th>
+                <th>答題進度</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td>{{ s.user.email }}</td>
+                <td style="font-family:monospace;font-size:0.85rem">{{ s.user.container_name or '-' }}</td>
+                <td style="font-family:monospace;font-size:0.85rem">{{ s.user.container_ip or '-' }}</td>
+                <td id="provision-{{ s.user.id }}">
+                    {% set ps = s.user.provision_status %}
+                    {% if ps == 'done' %}<span class="status-badge status-running">✅ 完成</span>
+                    {% elif ps == 'error' %}<span class="status-badge status-stopped" title="{{ s.user.provision_message }}">❌ 失敗</span>
+                    {% elif ps == 'pending' %}<span style="color:#eab308">⏳ 等待</span>
+                    {% else %}<span style="color:#38bdf8">🔄 {{ s.user.provision_message or ps }}</span>
+                    {% endif %}
+                </td>
+                <td id="container-{{ s.user.id }}">
+                    {% if s.stats %}
+                        {% if s.stats.status == 'Running' %}
+                            <span class="status-badge status-running">執行中</span>
+                            <span style="font-size:0.8rem;color:#94a3b8">{{ '%.0f'|format(s.stats.memory_usage / 1024 / 1024) }}MB</span>
+                        {% else %}
+                            <span class="status-badge status-stopped">{{ s.stats.status }}</span>
+                        {% endif %}
+                    {% else %}<span style="color:#64748b">-</span>{% endif %}
+                </td>
+                <td>{{ s.quiz_progress }}</td>
+                <td style="white-space:nowrap">
+                    <form method="POST" action="{{ url_for('admin_restart_student', uid=s.user.id) }}" style="display:inline"
+                          onsubmit="return confirm('重啟 {{ s.user.email }} 的機器？')">
+                        <button class="btn btn-primary" style="padding:0.3rem 0.6rem;font-size:0.8rem">重啟</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_reset_student', uid=s.user.id) }}" style="display:inline"
+                          onsubmit="return confirm('確定重置 {{ s.user.email }} 的機器？')">
+                        <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.8rem">重置</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_provision_student', uid=s.user.id) }}" style="display:inline">
+                        <button class="btn btn-success" style="padding:0.3rem 0.6rem;font-size:0.8rem">佈建</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_reset_guac', uid=s.user.id) }}" style="display:inline"
+                          onsubmit="return confirm('重置 {{ s.user.email }} 的 Guacamole？')">
+                        <button class="btn btn-secondary" style="padding:0.3rem 0.6rem;font-size:0.8rem">🔑 Guac</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('admin_delete_student', uid=s.user.id) }}" style="display:inline"
+                          onsubmit="return confirm('確定刪除 {{ s.user.email }}？此操作無法復原！')">
+                        <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.8rem">刪除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not students %}
+            <tr><td colspan="7" style="text-align:center;color:#64748b">尚無學生</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+function loadStats() {
+    fetch('{{ url_for("admin_system_stats") }}')
+        .then(r => r.json())
+        .then(d => {
+            const mb = (b) => (b / 1024 / 1024 / 1024).toFixed(1) + ' GB';
+            document.getElementById('sys-stats').innerHTML = `
+                <div style="margin-bottom:0.5rem">
+                    <span>CPU</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${d.cpu_percent}%;background:${d.cpu_percent>80?'#ef4444':'#3b82f6'}"></div></div>
+                    <span style="font-size:0.85rem;color:#94a3b8">${d.cpu_percent}%</span>
+                </div>
+                <div style="margin-bottom:0.5rem">
+                    <span>記憶體</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${d.memory.percent}%;background:${d.memory.percent>80?'#ef4444':'#3b82f6'}"></div></div>
+                    <span style="font-size:0.85rem;color:#94a3b8">${mb(d.memory.used)} / ${mb(d.memory.total)} (${d.memory.percent}%)</span>
+                </div>
+                <div>
+                    <span>硬碟</span>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${d.disk.percent}%;background:${d.disk.percent>80?'#ef4444':'#3b82f6'}"></div></div>
+                    <span style="font-size:0.85rem;color:#94a3b8">${mb(d.disk.used)} / ${mb(d.disk.total)} (${d.disk.percent}%)</span>
+                </div>
+            `;
+        });
+}
+loadStats();
+
+// Poll provision status every 3s
+function pollProvision() {
+    fetch('{{ url_for("admin_provision_status") }}')
+        .then(r => r.json())
+        .then(students => {
+            let allDone = true;
+            const labels = {
+                'pending': '⏳ 等待',
+                'creating_container': '📦 建立容器...',
+                'init_script': '⚙️ 初始化...',
+                'creating_guac': '🔗 設定連線...',
+                'done': '✅ 完成',
+                'error': '❌ 失敗',
+            };
+            students.forEach(s => {
+                const el = document.getElementById('provision-' + s.id);
+                if (el) {
+                    const label = labels[s.provision_status] || s.provision_status;
+                    if (s.provision_status === 'done') {
+                        el.innerHTML = '<span class="status-badge status-running">' + label + '</span>';
+                    } else if (s.provision_status === 'error') {
+                        el.innerHTML = '<span class="status-badge status-stopped" title="' + (s.provision_message||'') + '">' + label + '</span>';
+                    } else {
+                        el.innerHTML = '<span style="color:#38bdf8">' + label + '</span>';
+                        allDone = false;
+                    }
+                }
+            });
+            if (!allDone) setTimeout(pollProvision, 3000);
+        });
+}
+pollProvision();
+</script>
+{% endblock %}

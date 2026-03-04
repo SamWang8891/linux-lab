@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  guac-db:
+    image: postgres:15
+    container_name: guac-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guacamole
+      POSTGRES_USER: guacamole
+      POSTGRES_PASSWORD: ${GUAC_DB_PASS:-guac_db_pass_change_me}
+    volumes:
+      - guac-db-data:/var/lib/postgresql/data
+      - ./scripts/guac-initdb.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - guac-net
+
+  guacd:
+    image: guacamole/guacd
+    container_name: guacd
+    restart: unless-stopped
+    networks:
+      - guac-net
+      # Need host network access to reach LXD containers on 10.99.0.0/24
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  guacamole:
+    image: guacamole/guacamole
+    container_name: guacamole
+    restart: unless-stopped
+    depends_on:
+      - guac-db
+      - guacd
+    environment:
+      GUACD_HOSTNAME: guacd
+      POSTGRESQL_HOSTNAME: guac-db
+      POSTGRESQL_DATABASE: guacamole
+      POSTGRESQL_USER: guacamole
+      POSTGRESQL_PASSWORD: ${GUAC_DB_PASS:-guac_db_pass_change_me}
+    ports:
+      - "8080:8080"
+    networks:
+      - guac-net
+
+volumes:
+  guac-db-data:
+
+networks:
+  guac-net:
+    driver: bridge

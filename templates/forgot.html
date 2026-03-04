@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}忘記密碼 — Linux Lab{% endblock %}
+{% block content %}
+<div style="max-width:400px;margin:4rem auto">
+    <div class="card">
+        <h2>🔓 忘記密碼</h2>
+        <p style="color:#94a3b8;margin-bottom:1rem">輸入你的 Email，我們會寄送驗證碼。</p>
+        <form method="POST">
+            <label>Email</label>
+            <input type="email" name="email" required autofocus>
+            <button class="btn btn-primary" style="width:100%;margin-top:0.5rem">發送驗證碼</button>
+        </form>
+        <p style="margin-top:1rem;text-align:center;color:#94a3b8">
+            想起來了？<a href="{{ url_for('login') }}" style="color:#38bdf8">返回登入</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

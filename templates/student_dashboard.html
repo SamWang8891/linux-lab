@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}我的面板 — Linux Lab{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:1.5rem">👋 歡迎回來</h2>
+
+<div class="grid-3">
+    <div class="card" style="text-align:center">
+        <h2>機器狀態</h2>
+        <div id="machine-status" style="font-size:1.3rem;margin:1rem 0">載入中...</div>
+        <div id="provision-msg" style="font-size:0.85rem;color:#94a3b8;margin-bottom:0.5rem"></div>
+        <button class="btn btn-secondary" onclick="refreshStatus()">重新整理</button>
+    </div>
+
+    <div class="card" style="text-align:center" id="connect-card">
+        <h2>遠端連線</h2>
+        <div id="connect-buttons" style="display:none">
+            <a href="{{ guac_url }}" target="_blank" class="btn btn-primary" style="margin:0.5rem">🖥️ 開啟桌面</a>
+            <br>
+            <a href="{{ guac_url }}" target="_blank" class="btn btn-secondary" style="margin:0.5rem">💻 開啟終端機</a>
+        </div>
+        <div id="connect-waiting" style="color:#94a3b8;margin:1rem 0">
+            ⏳ 機器建立中，請稍候...
+        </div>
+    </div>
+
+    <div class="card" style="text-align:center">
+        <h2>機器管理</h2>
+        <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:0.5rem">容器預設帳號：<code>user</code> ／密碼：<code>user</code></p>
+        <form method="POST" action="{{ url_for('restart_machine') }}" style="display:inline"
+              onsubmit="return confirm('確定要重新啟動機器？')">
+            <button class="btn btn-primary" style="margin:0.5rem" id="restart-btn">🔁 重新啟動</button>
+        </form>
+        <form method="POST" action="{{ url_for('reset_machine') }}" style="display:inline"
+              onsubmit="return confirm('確定要重置機器嗎？所有資料和答題進度都會被清除！')">
+            <button class="btn btn-danger" style="margin:0.5rem" id="reset-btn">🔄 重置機器</button>
+        </form>
+        <form method="POST" action="{{ url_for('reset_guac') }}" style="display:inline"
+              onsubmit="return confirm('確定要重置 Guacamole 帳號？')">
+            <button class="btn btn-secondary" style="margin:0.5rem">🔑 重置遠端連線</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h2>📝 學習任務</h2>
+    <p style="color:#94a3b8;margin-bottom:1rem">完成以下任務來學習 Linux 基礎操作：</p>
+
+    <table>
+        <thead>
+            <tr><th>#</th><th>任務</th><th>狀態</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for q in questions %}
+            <tr>
+                <td>{{ q.order }}</td>
+                <td>{{ q.title }}</td>
+                <td>
+                    {% if answered.get(q.id) and answered[q.id].is_correct %}
+                        <span class="status-badge status-running">✅ 完成</span>
+                    {% else %}
+                        <span class="status-badge status-stopped">⬜ 未完成</span>
+                    {% endif %}
+                </td>
+                <td><a href="{{ url_for('quiz', question_id=q.id) }}" class="btn btn-primary" style="padding:0.3rem 0.8rem;font-size:0.8rem">作答</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% set solved = answered.values()|selectattr('is_correct')|list|length %}
+    {% set total = questions|length %}
+    <div style="margin-top:1rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem">
+            <span>進度</span><span>{{ solved }}/{{ total }}</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:{{ (solved/total*100) if total else 0 }}%"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+let pollInterval = null;
+
+function refreshStatus() {
+    fetch('{{ url_for("machine_status") }}')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('machine-status').textContent = d.label;
+            document.getElementById('provision-msg').textContent = d.message || '';
+
+            if (d.ready) {
+                document.getElementById('connect-buttons').style.display = '';
+                document.getElementById('connect-waiting').style.display = 'none';
+                document.getElementById('reset-btn').disabled = false;
+                document.getElementById('restart-btn').disabled = false;
+                // Stop polling once ready
+                if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+            } else {
+                document.getElementById('connect-buttons').style.display = 'none';
+                document.getElementById('connect-waiting').style.display = '';
+                // Allow reset when provisioning failed
+                document.getElementById('reset-btn').disabled = (d.status !== 'error');
+                document.getElementById('restart-btn').disabled = !d.ready;
+                // Keep polling
+                if (!pollInterval) { pollInterval = setInterval(refreshStatus, 3000); }
+            }
+        });
+}
+
+refreshStatus();
+// Start polling, will auto-stop when ready
+pollInterval = setInterval(refreshStatus, 3000);
+</script>
+{% endblock %}

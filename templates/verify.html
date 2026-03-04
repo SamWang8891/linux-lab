@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}驗證 Email — Linux Lab{% endblock %}
+{% block content %}
+<div style="max-width:400px;margin:4rem auto">
+    <div class="card">
+        <h2>📧 輸入驗證碼</h2>
+        <p style="color:#94a3b8;margin-bottom:1rem">驗證碼已寄送至 <strong>{{ email }}</strong></p>
+        <form method="POST">
+            <input type="hidden" name="email" value="{{ email }}">
+            <label>驗證碼（6 位數字）</label>
+            <input type="text" name="code" required autofocus maxlength="6" pattern="[0-9]{6}"
+                   placeholder="000000" style="font-size:1.5rem;text-align:center;letter-spacing:0.5rem">
+            <button class="btn btn-primary" style="width:100%;margin-top:0.5rem">驗證</button>
+        </form>
+        <p style="margin-top:1rem;text-align:center;color:#94a3b8">
+            沒收到？<a href="{{ url_for(action|default('register')) }}" style="color:#38bdf8">重新發送</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

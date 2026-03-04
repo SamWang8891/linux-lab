@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ question.title }} — Linux Lab{% endblock %}
+{% block content %}
+<div class="grid-2">
+    <div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <h2>第 {{ question.order }} 題：{{ question.title }}</h2>
+                {% if existing and existing.is_correct %}
+                    <span class="status-badge status-running">✅ 已完成</span>
+                {% endif %}
+            </div>
+
+            <div style="margin:1rem 0;line-height:1.8;white-space:pre-wrap">{{ question.description }}</div>
+
+            {% if question.hint %}
+            <details style="margin:1rem 0">
+                <summary style="cursor:pointer;color:#eab308">💡 提示</summary>
+                <pre style="margin-top:0.5rem"><code>{{ question.hint }}</code></pre>
+            </details>
+            {% endif %}
+
+            {% if not (existing and existing.is_correct) %}
+            <form method="POST" style="margin-top:1rem">
+                <label>你的答案：</label>
+                <input type="text" name="answer" required autofocus
+                       placeholder="{% if question.check_type in ['http','ssh','script'] and question.expected_answer is none %}輸入 done{% else %}輸入答案{% endif %}"
+                       value="{{ existing.answer if existing else '' }}">
+                <button class="btn btn-success">提交答案</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:1rem">
+            {% if question.order > 1 %}
+                {% set prev = questions|selectattr('order', 'equalto', question.order - 1)|first %}
+                {% if prev %}<a href="{{ url_for('quiz', question_id=prev.id) }}" class="btn btn-secondary">← 上一題</a>{% endif %}
+            {% else %}<span></span>{% endif %}
+
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">回到面板</a>
+
+            {% if question.order < questions|length %}
+                {% set next_q = questions|selectattr('order', 'equalto', question.order + 1)|first %}
+                {% if next_q %}<a href="{{ url_for('quiz', question_id=next_q.id) }}" class="btn btn-secondary">下一題 →</a>{% endif %}
+            {% else %}<span></span>{% endif %}
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <h2>📋 所有任務</h2>
+            <ul class="quiz-nav">
+                {% for q in questions %}
+                <li class="{% if q.id == question.id %}current{% elif answered.get(q.id) and answered[q.id].is_correct %}solved{% else %}unsolved{% endif %}">
+                    <a href="{{ url_for('quiz', question_id=q.id) }}">
+                        {% if answered.get(q.id) and answered[q.id].is_correct %}✅{% else %}⬜{% endif %}
+                        {{ q.order }}. {{ q.title }}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

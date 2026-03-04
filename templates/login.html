@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}登入 — Linux Lab{% endblock %}
+{% block content %}
+<div style="max-width:400px;margin:4rem auto">
+    <div class="card">
+        <h2>🔐 登入</h2>
+        <form method="POST">
+            <label>Email</label>
+            <input type="email" name="email" required autofocus>
+            <label>密碼</label>
+            <input type="password" name="password" required>
+            <button class="btn btn-primary" style="width:100%;margin-top:0.5rem">登入</button>
+        </form>
+        <p style="margin-top:1rem;text-align:center;color:#94a3b8">
+            還沒有帳號？<a href="{{ url_for('register') }}" style="color:#38bdf8">註冊</a>
+            ｜<a href="{{ url_for('forgot_password') }}" style="color:#38bdf8">忘記密碼</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
