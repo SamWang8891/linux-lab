@@ -53,6 +53,58 @@ def admin_required(f):
     return decorated
 
 
+def _verify_email_html(code, is_reset=False):
+    heading = '密碼重設驗證碼' if is_reset else '歡迎加入 Linux Lab'
+    body_text = '我們收到了你的密碼重設請求，請使用以下驗證碼：' if is_reset else '歡迎加入 Linux Lab，請使用以下驗證碼完成註冊：'
+    footer_text = '如果這不是你本人的操作，請忽略這封信，你的密碼不會被更改。' if is_reset else '如果這不是你本人的操作，請忽略這封信。'
+    return f'''<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#1e293b,#334155);padding:32px 40px;text-align:center;">
+              <span style="font-size:36px;">🐧</span>
+              <h1 style="color:#ffffff;margin:8px 0 0;font-size:22px;font-weight:600;">Linux Lab</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:36px 40px;">
+              <p style="color:#334155;font-size:16px;margin:0 0 24px;line-height:1.6;">
+                嗨！{body_text}
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="padding:20px 0;">
+                    <div style="display:inline-block;background:#f0f9ff;border:2px dashed #3b82f6;border-radius:10px;padding:16px 48px;">
+                      <span style="font-size:32px;font-weight:700;letter-spacing:8px;color:#1e40af;font-family:'Courier New',monospace;">{code}</span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <p style="color:#64748b;font-size:14px;margin:24px 0 0;line-height:1.6;text-align:center;">
+                ⏰ 此驗證碼將在 <strong>10 分鐘</strong>後失效
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #e2e8f0;">
+              <p style="color:#94a3b8;font-size:12px;margin:0;line-height:1.5;text-align:center;">
+                {footer_text}<br>
+                此郵件由系統自動發送，請勿直接回覆。
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>'''
+
+
 def generate_password(length=12):
     chars = string.ascii_letters + string.digits
     return ''.join(random.SystemRandom().choice(chars) for _ in range(length))
@@ -182,7 +234,8 @@ def register():
                 subject='Linux Lab 驗證碼',
                 recipients=[email],
             )
-            msg.body = f'你的驗證碼是：{code}\n\n此驗證碼將在 10 分鐘後失效。'
+            msg.body = f'你的驗證碼是：{code}\n此驗證碼將在 10 分鐘後失效。\n如果這不是你本人的操作，請忽略這封信。'
+            msg.html = _verify_email_html(code, is_reset=False)
             mail.send(msg)
             flash('驗證碼已寄出，請檢查你的 Email。', 'success')
         except Exception as e:
@@ -312,7 +365,8 @@ def forgot_password():
                 subject='Linux Lab 密碼重設驗證碼',
                 recipients=[email],
             )
-            msg.body = f'你的驗證碼是：{code}\n\n此驗證碼將在 10 分鐘後失效。'
+            msg.body = f'你的驗證碼是：{code}\n此驗證碼將在 10 分鐘後失效。\n如果這不是你本人的操作，請忽略這封信，你的密碼不會被更改。'
+            msg.html = _verify_email_html(code, is_reset=True)
             mail.send(msg)
             flash('驗證碼已寄出，請檢查你的 Email。', 'success')
         except Exception as e:
@@ -513,8 +567,19 @@ def reset_guac():
     u = current_user
     if u.is_admin:
         return redirect(url_for('admin_dashboard'))
+
+    password = request.form.get('password', '')
+    if not password:
+        flash('請輸入密碼', 'error')
+        return redirect(url_for('student_dashboard'))
+
+    if not check_password_hash(u.password_hash, password):
+        flash('密碼錯誤', 'error')
+        return redirect(url_for('student_dashboard'))
+
     try:
-        _reset_guac_for_user(u)
+        _reset_guac_for_user(u, plaintext_password=password)
+        db.session.commit()
         flash('Guacamole 帳號已重置！', 'success')
     except Exception as e:
         flash(f'重置失敗：{e}', 'error')
