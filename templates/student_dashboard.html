@@ -41,7 +41,8 @@
             <button class="btn btn-danger" style="margin:0.5rem" id="reset-btn">🔄 重置機器</button>
         </form>
         <form method="POST" action="{{ url_for('reset_guac') }}" style="display:inline"
-              onsubmit="return confirm('確定要重置 Guacamole 帳號？')">
+              onsubmit="var pw = prompt('請輸入你的登入密碼以重置遠端連線：'); if(!pw) return false; this.querySelector('[name=password]').value = pw; return true;">
+            <input type="hidden" name="password" value="">
             <button class="btn btn-secondary" style="margin:0.5rem">🔑 重置遠端連線</button>
         </form>
     </div>
