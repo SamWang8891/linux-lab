@@ -38,6 +38,12 @@ services:
       POSTGRESQL_DATABASE: guacamole
       POSTGRESQL_USER: guacamole
       POSTGRESQL_PASSWORD: ${GUAC_DB_PASS:-guac_db_pass_change_me}
+      # Raise brute-force ban thresholds (default is 5 failures → ban)
+      BAN_ENABLED: "false"
+      BAN_MAX_INVALID_ATTEMPTS: "100"
+      # Trust reverse proxy headers (NPM → nginx → guacamole)
+      REMOTE_IP_VALVE_ENABLED: "true"
+      PROXY_ALLOWED_IPS_REGEX: ".*"
     ports:
       - "8080:8080"
     networks:

@@ -90,6 +90,11 @@ def start_container(name):
     _run(['lxc', 'start', name])
 
 
+def stop_container(name):
+    """Stop a running container."""
+    _run(['lxc', 'stop', name])
+
+
 def restart_container(name):
     """Restart a container."""
     _run(['lxc', 'restart', name, '--force'])

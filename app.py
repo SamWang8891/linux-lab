@@ -32,6 +32,10 @@ guac = GuacamoleAPI(
     app.config['GUAC_ADMIN_PASS'],
 )
 
+# Transient in-memory store for plaintext passwords during provisioning.
+# Key: user_id, Value: plaintext password. Cleared after provisioning completes.
+_pending_passwords = {}
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -109,9 +113,8 @@ def provision_container_bg(app_obj, user_id):
 
             _set_provision_status(u, 'creating_guac', '正在設定遠端連線...')
 
-            guac_password = u.guac_password or generate_password(8)
+            guac_password = _pending_passwords.pop(user_id, None) or generate_password(8)
             u.guac_username = u.email
-            u.guac_password = guac_password
 
             guac.create_user(u.email, guac_password)
             app_obj.logger.info(f'Guac user created: {u.email}')
@@ -255,7 +258,6 @@ def set_password():
         user = User(
             email=email,
             password_hash=generate_password_hash(password),
-            guac_password=password,
             container_name='pending',
         )
         db.session.add(user)
@@ -263,6 +265,9 @@ def set_password():
 
         user.container_name = f'lab-student-{user.id}'
         db.session.commit()
+
+        # Stash plaintext password for provisioning thread (cleared after use)
+        _pending_passwords[user.id] = password
 
         # Provision in background
         threading.Thread(
@@ -378,18 +383,11 @@ def reset_password():
             return redirect(url_for('forgot_password'))
 
         user.password_hash = generate_password_hash(password)
-        user.guac_password = password
 
         # Update Guacamole password if user exists there
         if user.guac_username:
             try:
-                guac.delete_user(user.guac_username)
-                guac.create_user(user.guac_username, password)
-                # Re-grant connections
-                if user.guac_connection_id_desktop:
-                    guac.grant_connection(user.guac_username, user.guac_connection_id_desktop)
-                if user.guac_connection_id_terminal:
-                    guac.grant_connection(user.guac_username, user.guac_connection_id_terminal)
+                _reset_guac_for_user(user, plaintext_password=password)
             except Exception as e:
                 app.logger.warning(f'Failed to update Guac password for {email}: {e}')
 
@@ -469,6 +467,32 @@ def reset_machine():
     return redirect(url_for('student_dashboard'))
 
 
+@app.route('/machine/start', methods=['POST'])
+@login_required
+def start_machine():
+    if current_user.is_admin:
+        return redirect(url_for('admin_dashboard'))
+    try:
+        lxd.start_container(current_user.container_name)
+        flash('機器已啟動！', 'success')
+    except Exception as e:
+        flash(f'啟動失敗：{e}', 'error')
+    return redirect(url_for('student_dashboard'))
+
+
+@app.route('/machine/stop', methods=['POST'])
+@login_required
+def stop_machine():
+    if current_user.is_admin:
+        return redirect(url_for('admin_dashboard'))
+    try:
+        lxd.stop_container(current_user.container_name)
+        flash('機器已關閉！', 'success')
+    except Exception as e:
+        flash(f'關閉失敗：{e}', 'error')
+    return redirect(url_for('student_dashboard'))
+
+
 @app.route('/machine/restart', methods=['POST'])
 @login_required
 def restart_machine():
@@ -497,8 +521,12 @@ def reset_guac():
     return redirect(url_for('student_dashboard'))
 
 
-def _reset_guac_for_user(u):
-    """Delete and recreate Guac user + connections for a user."""
+def _reset_guac_for_user(u, plaintext_password=None):
+    """Delete and recreate Guac user + connections for a user.
+
+    If plaintext_password is provided, use it as the new Guac password.
+    Otherwise generate a random one (user will need to use 'forgot password' to sync).
+    """
     # Clean up old
     if u.guac_connection_id_desktop:
         try: guac.delete_connection(u.guac_connection_id_desktop)
@@ -514,9 +542,8 @@ def _reset_guac_for_user(u):
         raise RuntimeError('機器尚未建立，無法設定 Guacamole')
 
     # Recreate
-    guac_password = u.guac_password or generate_password(8)
+    guac_password = plaintext_password or generate_password(8)
     u.guac_username = u.email
-    u.guac_password = guac_password
     guac.create_user(u.email, guac_password)
 
     desktop_id = guac.create_connection(
@@ -750,8 +777,8 @@ def admin_delete_student(uid):
 def admin_reset_guac(uid):
     user = User.query.get_or_404(uid)
     try:
-        guac_pass = _reset_guac_for_user(user)
-        flash(f'已重置 {user.email} 的 Guacamole（新密碼：{guac_pass}）', 'success')
+        _reset_guac_for_user(user)
+        flash(f'已重置 {user.email} 的 Guacamole，請通知使用者透過「忘記密碼」重設密碼以同步 Guacamole 密碼。', 'success')
     except Exception as e:
         flash(f'重置失敗：{e}', 'error')
     return redirect(url_for('admin_dashboard'))

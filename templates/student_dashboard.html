@@ -14,9 +14,8 @@
     <div class="card" style="text-align:center" id="connect-card">
         <h2>遠端連線</h2>
         <div id="connect-buttons" style="display:none">
-            <a href="{{ guac_url }}" target="_blank" class="btn btn-primary" style="margin:0.5rem">🖥️ 開啟桌面</a>
-            <br>
-            <a href="{{ guac_url }}" target="_blank" class="btn btn-secondary" style="margin:0.5rem">💻 開啟終端機</a>
+            <a href="{{ guac_url }}" target="_blank" class="btn btn-primary" style="margin:0.5rem">🖥️ 連線機器</a>
+            <p style="color:#94a3b8;font-size:0.85rem;margin-top:0.5rem">Guacamole 登入帳號密碼與你的平台登入密碼相同</p>
         </div>
         <div id="connect-waiting" style="color:#94a3b8;margin:1rem 0">
             ⏳ 機器建立中，請稍候...
@@ -26,6 +25,13 @@
     <div class="card" style="text-align:center">
         <h2>機器管理</h2>
         <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:0.5rem">容器預設帳號：<code>user</code> ／密碼：<code>user</code></p>
+        <form method="POST" action="{{ url_for('start_machine') }}" style="display:inline">
+            <button class="btn btn-primary" style="margin:0.5rem" id="start-btn">▶️ 啟動機器</button>
+        </form>
+        <form method="POST" action="{{ url_for('stop_machine') }}" style="display:inline"
+              onsubmit="return confirm('確定要關閉機器？')">
+            <button class="btn btn-secondary" style="margin:0.5rem" id="stop-btn">⏹️ 關閉機器</button>
+        </form>
         <form method="POST" action="{{ url_for('restart_machine') }}" style="display:inline"
               onsubmit="return confirm('確定要重新啟動機器？')">
             <button class="btn btn-primary" style="margin:0.5rem" id="restart-btn">🔁 重新啟動</button>
