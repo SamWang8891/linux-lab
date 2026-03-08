@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block title %}管理面板 — Linux Lab{% endblock %}
 {% block content %}
-<h2 style="margin-bottom:1.5rem">⚙️ 管理面板</h2>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+    <h2 style="margin:0">⚙️ 管理面板</h2>
+    <a href="{{ url_for('admin_network') }}" class="btn btn-secondary">🌐 網路限速設定</a>
+</div>
 
 <div class="grid-2">
     <div class="card">

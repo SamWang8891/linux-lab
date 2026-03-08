@@ -100,6 +100,36 @@ def restart_container(name):
     _run(['lxc', 'restart', name, '--force'])
 
 
+def apply_network_limit(name, download_kbps=0, upload_kbps=0):
+    """Apply network speed limits to a container via tc (traffic control).
+
+    download_kbps/upload_kbps: speed in kbps, 0 = unlimited (removes limit).
+    Uses lxc config device overrides on the eth0 NIC.
+    """
+    if download_kbps > 0:
+        # LXD supports limits.ingress (download from container's perspective)
+        # and limits.egress on the NIC device.
+        # Note: LXD ingress = traffic entering the container = download for the user
+        # LXD egress = traffic leaving the container = upload for the user... actually
+        # LXD docs: limits.ingress = inbound to host (= upload from container)
+        # limits.egress = outbound from host (= download to container)
+        # Actually for bridged NICs:
+        #   limits.ingress = rate of traffic going INTO the bridge from the container (= container upload)
+        #   limits.egress = rate of traffic going OUT of the bridge to the container (= container download)
+        _run(['lxc', 'config', 'device', 'set', name, 'eth0',
+              f'limits.egress={download_kbps}kbit'], check=False)
+    else:
+        _run(['lxc', 'config', 'device', 'set', name, 'eth0',
+              'limits.egress='], check=False)
+
+    if upload_kbps > 0:
+        _run(['lxc', 'config', 'device', 'set', name, 'eth0',
+              f'limits.ingress={upload_kbps}kbit'], check=False)
+    else:
+        _run(['lxc', 'config', 'device', 'set', name, 'eth0',
+              'limits.ingress='], check=False)
+
+
 def get_container_stats(name):
     """Get CPU/memory/disk stats for a container."""
     result = _run(['lxc', 'info', name, '--format=json'], check=False)

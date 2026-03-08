@@ -106,6 +106,23 @@ class GuacamoleAPI:
             }
         ])
 
+    def list_connections(self):
+        """Return dict of all connections: {id: {name, protocol, ...}}."""
+        return self._api('GET', '/connections')
+
+    def delete_connections_by_name(self, name_prefix):
+        """Delete all connections whose name starts with name_prefix."""
+        try:
+            conns = self.list_connections()
+            for conn_id, conn in conns.items():
+                if conn.get('name', '').startswith(name_prefix):
+                    try:
+                        self.delete_connection(conn_id)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
     def change_password(self, username, old_password, new_password):
         return self._api('PUT', f'/users/{username}/password', json={
             'oldPassword': old_password,

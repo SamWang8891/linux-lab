@@ -21,6 +21,9 @@ lxc profile device add lab-student root disk \
     path=/ \
     size=5GB 2>/dev/null || true
 
+# Resource limits: single CPU core per container
+lxc profile set lab-student limits.cpu=1
+
 # Security: systemd support + nesting
 lxc profile set lab-student security.nesting=true
 lxc profile set lab-student raw.lxc "lxc.apparmor.profile=unconfined"

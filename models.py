@@ -50,6 +50,21 @@ class QuizQuestion(db.Model):
     check_script = db.Column(db.Text, nullable=True)  # For automated checks
 
 
+class NetworkConfig(db.Model):
+    """Global network speed limit settings."""
+    id = db.Column(db.Integer, primary_key=True)
+    download_kbps = db.Column(db.Integer, default=0)  # 0 = unlimited
+    upload_kbps = db.Column(db.Integer, default=0)     # 0 = unlimited
+
+
+class NetworkWhitelist(db.Model):
+    """IPs/CIDRs excluded from speed limits."""
+    id = db.Column(db.Integer, primary_key=True)
+    cidr = db.Column(db.String(50), unique=True, nullable=False)
+    note = db.Column(db.String(255), nullable=True)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class QuizAnswer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

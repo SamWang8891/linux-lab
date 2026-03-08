@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}網路設定 — Linux Lab{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:1.5rem">🌐 網路限速設定</h2>
+
+<div class="grid-2">
+    <div class="card">
+        <h2>⚡ 速度限制</h2>
+        <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:1rem">設定每個學生容器的網路速度上限（0 = 不限速）。變更後會立即套用到所有容器。</p>
+        <form method="POST" action="{{ url_for('admin_network') }}">
+            <div style="margin-bottom:1rem">
+                <label>下載速度 (kbps)</label>
+                <input type="number" name="download_kbps" value="{{ config.download_kbps }}" min="0" step="100"
+                       placeholder="例如：10000 = 10 Mbps" style="width:100%">
+                <span style="font-size:0.8rem;color:#64748b">
+                    {% if config.download_kbps > 0 %}
+                        目前：{{ '%.1f'|format(config.download_kbps / 1000) }} Mbps
+                    {% else %}
+                        目前：不限速
+                    {% endif %}
+                </span>
+            </div>
+            <div style="margin-bottom:1rem">
+                <label>上傳速度 (kbps)</label>
+                <input type="number" name="upload_kbps" value="{{ config.upload_kbps }}" min="0" step="100"
+                       placeholder="例如：5000 = 5 Mbps" style="width:100%">
+                <span style="font-size:0.8rem;color:#64748b">
+                    {% if config.upload_kbps > 0 %}
+                        目前：{{ '%.1f'|format(config.upload_kbps / 1000) }} Mbps
+                    {% else %}
+                        目前：不限速
+                    {% endif %}
+                </span>
+            </div>
+            <button class="btn btn-primary">💾 儲存並套用</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>🛡️ IP 白名單</h2>
+        <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:1rem">白名單中的 IP/CIDR 不受速度限制（功能開發中，目前僅記錄用）。</p>
+        <form method="POST" action="{{ url_for('admin_network_whitelist_add') }}" style="display:flex;gap:0.5rem;margin-bottom:1rem">
+            <input type="text" name="cidr" placeholder="IP 或 CIDR，例如 140.118.0.0/16" style="flex:1" required>
+            <input type="text" name="note" placeholder="備註" style="flex:1">
+            <button class="btn btn-primary">新增</button>
+        </form>
+        <div style="max-height:250px;overflow-y:auto">
+            {% for w in whitelist %}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;border-bottom:1px solid #334155">
+                <div>
+                    <code style="font-size:0.85rem">{{ w.cidr }}</code>
+                    {% if w.note %}<span style="font-size:0.8rem;color:#64748b;margin-left:0.5rem">{{ w.note }}</span>{% endif %}
+                </div>
+                <form method="POST" action="{{ url_for('admin_network_whitelist_delete', wid=w.id) }}" style="margin:0">
+                    <button class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.75rem">移除</button>
+                </form>
+            </div>
+            {% endfor %}
+            {% if not whitelist %}
+            <p style="color:#64748b;font-size:0.85rem;text-align:center">尚無白名單</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div style="margin-top:1rem">
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">← 返回管理面板</a>
+</div>
+{% endblock %}
