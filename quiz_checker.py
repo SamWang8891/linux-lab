@@ -158,14 +158,8 @@ def _run_check_script(script_name, answer, container_name, container_ip):
         return rc == 0 and answer.strip() == out.strip()
 
     elif script_name == 'check_unzip':
-        # Check both flags exist
-        rc1, out1, _ = lxd.exec_in_container(container_name,
-            ['cat', '/home/user/challenges/flag1.txt'])
-        rc2, out2, _ = lxd.exec_in_container(container_name,
-            ['cat', '/home/user/challenges/flag2.txt'])
-        if rc1 != 0 or rc2 != 0:
-            return False
-        expected = f"{out1.strip()} {out2.strip()}"
+        # Accept the known flags directly — students may extract anywhere
+        expected = "FLAG{zip_cracked} FLAG{tar_expert}"
         return answer.strip() == expected
 
     elif script_name == 'check_executable':
@@ -174,8 +168,12 @@ def _run_check_script(script_name, answer, container_name, container_ip):
         if rc != 0:
             return False
         perms = out.strip()
-        # Must be executable
-        if not (int(perms) % 10 >= 5 or int(perms) // 10 % 10 >= 5 or int(perms) // 100 >= 5):
+        # Must be executable (check execute bit in octal)
+        try:
+            mode = int(perms, 8)
+        except ValueError:
+            return False
+        if not (mode & 0o111):
             return False
         rc, out, _ = lxd.exec_in_container(container_name,
             ['/home/user/challenges/run_me'])

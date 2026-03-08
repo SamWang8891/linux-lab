@@ -11,6 +11,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_mail import Mail, Message as MailMessage
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from flask_wtf.csrf import CSRFProtect
 from config import Config
 from models import db, User, Whitelist, VerifyCode, QuizQuestion, QuizAnswer, NetworkConfig, NetworkWhitelist
 from guac_api import GuacamoleAPI
@@ -21,6 +22,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+csrf = CSRFProtect(app)
 mail = Mail(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -32,9 +34,7 @@ guac = GuacamoleAPI(
     app.config['GUAC_ADMIN_PASS'],
 )
 
-# Transient in-memory store for plaintext passwords during provisioning.
-# Key: user_id, Value: plaintext password. Cleared after provisioning completes.
-_pending_passwords = {}
+# _pending_passwords removed — now stored in User.pending_guac_password (DB) for multi-worker safety
 
 
 @login_manager.user_loader
@@ -54,7 +54,6 @@ def admin_required(f):
 
 
 def _verify_email_html(code, is_reset=False):
-    heading = '密碼重設驗證碼' if is_reset else '歡迎加入 Linux Lab'
     body_text = '我們收到了你的密碼重設請求，請使用以下驗證碼：' if is_reset else '歡迎加入 Linux Lab，請使用以下驗證碼完成註冊：'
     footer_text = '如果這不是你本人的操作，請忽略這封信，你的密碼不會被更改。' if is_reset else '如果這不是你本人的操作，請忽略這封信。'
     return f'''<!DOCTYPE html>
@@ -165,7 +164,8 @@ def provision_container_bg(app_obj, user_id):
 
             _set_provision_status(u, 'creating_guac', '正在設定遠端連線...')
 
-            guac_password = _pending_passwords.pop(user_id, None) or generate_password(8)
+            guac_password = u.pending_guac_password or generate_password(8)
+            u.pending_guac_password = None  # clear after use
             u.guac_username = u.email
 
             guac.create_user(u.email, guac_password)
@@ -324,8 +324,9 @@ def set_password():
         user.container_name = f'lab-student-{user.id}'
         db.session.commit()
 
-        # Stash plaintext password for provisioning thread (cleared after use)
-        _pending_passwords[user.id] = password
+        # Stash plaintext password in DB for provisioning thread (cleared after use)
+        user.pending_guac_password = password
+        db.session.commit()
 
         # Provision in background
         threading.Thread(
@@ -639,7 +640,7 @@ def _reset_guac_for_user(u, plaintext_password=None):
     if terminal_id:
         guac.grant_connection(u.email, terminal_id)
 
-    db.session.commit()
+    # Don't commit here — let the caller commit to keep transactions atomic
     return guac_password
 
 
@@ -786,19 +787,38 @@ def admin_reset_student(uid):
     user = User.query.get_or_404(uid)
     try:
         name = user.container_name
+        # Clean up old container
         lxd.delete_container(name)
-        ip = lxd.create_container(
-            name,
-            image=app.config['LXD_IMAGE'],
-            profile=app.config['LXD_PROFILE'],
-            network=app.config['LXD_NETWORK'],
-        )
-        script_path = os.path.join(os.path.dirname(__file__), 'scripts', 'init_container.sh')
-        lxd.exec_in_container(name, ['bash', '-c', open(script_path).read()])
-        user.container_ip = ip
+
+        # Clean up old Guac resources
+        if user.guac_connection_id_desktop:
+            try: guac.delete_connection(user.guac_connection_id_desktop)
+            except Exception: pass
+        if user.guac_connection_id_terminal:
+            try: guac.delete_connection(user.guac_connection_id_terminal)
+            except Exception: pass
+        guac.delete_connections_by_name(user.email)
+        if user.guac_username:
+            try: guac.delete_user(user.guac_username)
+            except Exception: pass
+
+        # Reset state and re-provision in background
+        user.container_ip = None
+        user.guac_connection_id_desktop = None
+        user.guac_connection_id_terminal = None
+        user.guac_username = None
+        user.provision_status = 'pending'
+        user.provision_message = None
         QuizAnswer.query.filter_by(user_id=uid).delete()
         db.session.commit()
-        flash(f'已重置 {user.email} 的機器', 'success')
+
+        threading.Thread(
+            target=provision_container_bg,
+            args=(app, user.id),
+            daemon=True,
+        ).start()
+
+        flash(f'已重置 {user.email} 的機器，正在重新佈建...', 'success')
     except Exception as e:
         flash(f'重置失敗：{e}', 'error')
     return redirect(url_for('admin_dashboard'))

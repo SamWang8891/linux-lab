@@ -4,8 +4,8 @@ import json
 import time
 
 
-def _run(cmd, check=True):
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+def _run(cmd, check=True, timeout=120):
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     if check and result.returncode != 0:
         raise RuntimeError(f"LXD command failed: {' '.join(cmd)}\n{result.stderr}")
     return result
@@ -74,9 +74,9 @@ def get_container_status(name):
         return 'error'
 
 
-def exec_in_container(name, command):
+def exec_in_container(name, command, timeout=600):
     """Execute a command inside a container."""
-    result = _run(['lxc', 'exec', name, '--'] + command, check=False)
+    result = _run(['lxc', 'exec', name, '--'] + command, check=False, timeout=timeout)
     return result.returncode, result.stdout, result.stderr
 
 

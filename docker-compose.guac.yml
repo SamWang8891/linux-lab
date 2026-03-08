@@ -19,11 +19,8 @@ services:
     image: guacamole/guacd
     container_name: guacd
     restart: unless-stopped
-    networks:
-      - guac-net
-      # Need host network access to reach LXD containers on 10.99.0.0/24
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # Use host network so guacd can reach LXD containers on 10.99.0.0/24
+    network_mode: host
 
   guacamole:
     image: guacamole/guacamole
@@ -31,9 +28,10 @@ services:
     restart: unless-stopped
     depends_on:
       - guac-db
-      - guacd
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      GUACD_HOSTNAME: guacd
+      GUACD_HOSTNAME: host.docker.internal
       POSTGRESQL_HOSTNAME: guac-db
       POSTGRESQL_DATABASE: guacamole
       POSTGRESQL_USER: guacamole

@@ -18,8 +18,9 @@ class User(UserMixin, db.Model):
     container_name = db.Column(db.String(100), nullable=True)
     container_ip = db.Column(db.String(50), nullable=True)
     guac_username = db.Column(db.String(100), nullable=True)
-    guac_connection_id_desktop = db.Column(db.Integer, nullable=True)
-    guac_connection_id_terminal = db.Column(db.Integer, nullable=True)
+    guac_connection_id_desktop = db.Column(db.String(50), nullable=True)
+    guac_connection_id_terminal = db.Column(db.String(50), nullable=True)
+    pending_guac_password = db.Column(db.String(255), nullable=True)  # transient, cleared after provisioning
 
     quiz_answers = db.relationship('QuizAnswer', backref='user', lazy=True)
 

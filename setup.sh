@@ -36,12 +36,17 @@ source <(grep -v '^#' .env | sed 's/^/export /')
 info "已載入 .env"
 
 # ─── System packages ────────────────────────────────────────────────────
+# Check Docker is installed
+if ! command -v docker &>/dev/null; then
+    err "Docker 未安裝！請先安裝 Docker：https://docs.docker.com/engine/install/"
+    exit 1
+fi
+
 info "安裝系統套件..."
 apt-get update
 apt-get install -y \
     python3 python3-pip python3-venv \
     nginx \
-    docker.io docker-compose-plugin \
     ebtables iptables \
     curl wget git
 

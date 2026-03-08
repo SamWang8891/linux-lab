@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}Linux Lab{% endblock %}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -77,6 +78,18 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
+    <script>
+    // Auto-inject CSRF token into all POST forms
+    document.querySelectorAll('form[method="POST"], form[method="post"]').forEach(form => {
+        if (!form.querySelector('input[name="csrf_token"]')) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'csrf_token';
+            input.value = document.querySelector('meta[name="csrf-token"]').content;
+            form.appendChild(input);
+        }
+    });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
