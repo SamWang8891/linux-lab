@@ -101,21 +101,21 @@ def restart_container(name):
 
 
 def apply_network_limit(name, download_kbps=0, upload_kbps=0):
-    """Apply network speed limits to a container via tc (traffic control).
+    """Apply network speed limits to a container.
 
     download_kbps/upload_kbps: speed in kbps, 0 = unlimited (removes limit).
-    Uses lxc config device overrides on the eth0 NIC.
+
+    LXD bridged NIC limits:
+      limits.ingress = traffic FROM container TO bridge (= container upload)
+      limits.egress  = traffic FROM bridge TO container (= container download)
+
+    If eth0 is inherited from a profile, we must override it at the instance
+    level first before setting properties on it.
     """
+    # Ensure eth0 exists as an instance-level device override
+    _run(['lxc', 'config', 'device', 'override', name, 'eth0'], check=False)
+
     if download_kbps > 0:
-        # LXD supports limits.ingress (download from container's perspective)
-        # and limits.egress on the NIC device.
-        # Note: LXD ingress = traffic entering the container = download for the user
-        # LXD egress = traffic leaving the container = upload for the user... actually
-        # LXD docs: limits.ingress = inbound to host (= upload from container)
-        # limits.egress = outbound from host (= download to container)
-        # Actually for bridged NICs:
-        #   limits.ingress = rate of traffic going INTO the bridge from the container (= container upload)
-        #   limits.egress = rate of traffic going OUT of the bridge to the container (= container download)
         _run(['lxc', 'config', 'device', 'set', name, 'eth0',
               f'limits.egress={download_kbps}kbit'], check=False)
     else:
@@ -128,6 +128,11 @@ def apply_network_limit(name, download_kbps=0, upload_kbps=0):
     else:
         _run(['lxc', 'config', 'device', 'set', name, 'eth0',
               'limits.ingress='], check=False)
+
+
+def apply_cpu_limit(name, cpu='1'):
+    """Apply CPU limit to an existing container."""
+    _run(['lxc', 'config', 'set', name, f'limits.cpu={cpu}'], check=False)
 
 
 def get_container_stats(name):
