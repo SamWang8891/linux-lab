@@ -56,7 +56,7 @@ QUIZ_QUESTIONS = [
     {
         'order': 7,
         'title': '刪除檔案',
-        'description': '請刪除 `/home/user/challenges/delete_me.txt` 這個檔案。\n\n完成後輸入 "done"。',
+        'description': '請刪除 `/home/user/challenges/delete_me.txt` 這個檔案。\n\n完成後點擊提交答案。',
         'hint': 'rm /home/user/challenges/delete_me.txt',
         'check_type': 'script',
         'check_script': 'check_file_deleted',
@@ -72,7 +72,7 @@ QUIZ_QUESTIONS = [
     {
         'order': 9,
         'title': '編輯檔案',
-        'description': '請使用 nano 或 vim 編輯 `/home/user/challenges/edit_me.txt`。\n\n將檔案內容改為：`Linux is awesome`\n\n完成後輸入 "done"。',
+        'description': '請使用 nano 或 vim 編輯 `/home/user/challenges/edit_me.txt`。\n\n將檔案內容改為：`Linux is awesome`\n\n完成後點擊提交答案。',
         'hint': 'nano /home/user/challenges/edit_me.txt',
         'check_type': 'script',
         'check_script': 'check_edit_file',
@@ -80,7 +80,7 @@ QUIZ_QUESTIONS = [
     {
         'order': 10,
         'title': '修改 .bashrc',
-        'description': '請編輯 `/home/user/.bashrc`，在最後一行加入：\n\n`export LAB_COMPLETE=1`\n\n然後重新載入它。完成後輸入 "done"。',
+        'description': '請編輯 `/home/user/.bashrc`，在最後一行加入：\n\n`export LAB_COMPLETE=1`\n\n然後重新載入它。完成後點擊提交答案。',
         'hint': 'echo \'export LAB_COMPLETE=1\' >> ~/.bashrc && source ~/.bashrc',
         'check_type': 'script',
         'check_script': 'check_bashrc',
@@ -96,7 +96,7 @@ QUIZ_QUESTIONS = [
     {
         'order': 12,
         'title': '安裝並管理服務',
-        'description': '請完成以下步驟：\n1. 使用 `apt` 安裝 nginx\n2. 使用 `systemctl start nginx` 啟動它\n3. 使用 `systemctl enable nginx` 設定開機自動啟動\n\n完成後輸入 "done"。系統會自動檢查你的 port 80 是否有回應。',
+        'description': '請完成以下步驟：\n1. 使用 `apt` 安裝 nginx\n2. 使用 `systemctl start nginx` 啟動它\n3. 使用 `systemctl enable nginx` 設定開機自動啟動\n\n完成後點擊提交答案，系統會自動檢查你的 port 80 是否有回應。',
         'hint': 'sudo apt install -y nginx && sudo systemctl start nginx && sudo systemctl enable nginx',
         'check_type': 'http',
     },
@@ -111,7 +111,7 @@ QUIZ_QUESTIONS = [
     {
         'order': 14,
         'title': '更改密碼',
-        'description': '請將 user 帳號的密碼從 `user` 改為 `linux-lab-2026`。\n\n完成後輸入 "done"。系統會透過 SSH 驗證你的新密碼。',
+        'description': '請將 user 帳號的密碼從 `user` 改為 `linux-lab-2026`。\n\n完成後點擊提交答案，系統會透過 SSH 驗證你的新密碼。',
         'hint': 'passwd  （然後依照提示輸入舊密碼和新密碼）',
         'check_type': 'ssh',
     },

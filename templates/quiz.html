@@ -21,11 +21,16 @@
             {% endif %}
 
             {% if not (existing and existing.is_correct) %}
+            {% set no_input_needed = question.check_type in ['http', 'ssh'] or question.check_script in ['check_file_deleted', 'check_edit_file', 'check_bashrc'] %}
             <form method="POST" style="margin-top:1rem">
-                <label>你的答案：</label>
-                <input type="text" name="answer" required autofocus
-                       placeholder="{% if question.check_type in ['http','ssh','script'] and question.expected_answer is none %}輸入 done{% else %}輸入答案{% endif %}"
-                       value="{{ existing.answer if existing else '' }}">
+                {% if no_input_needed %}
+                    <p style="color:#eab308;margin-bottom:0.75rem">💡 直接點擊提交答案</p>
+                {% else %}
+                    <label>你的答案：</label>
+                    <input type="text" name="answer" required autofocus
+                           placeholder="輸入答案"
+                           value="{{ existing.answer if existing else '' }}">
+                {% endif %}
                 <button class="btn btn-success">提交答案</button>
             </form>
             {% endif %}
