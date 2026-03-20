@@ -23,6 +23,7 @@ lxc profile device add lab-student root disk \
 
 # Resource limits: single CPU core per container
 lxc profile set lab-student limits.cpu=1
+lxc profile set lab-student limits.processes=256
 
 # Security: systemd support + nesting
 lxc profile set lab-student security.nesting=true

@@ -90,4 +90,11 @@ pcmanfm &
 EOF
 chown -R user:user /home/user/.config
 
+# Limit max processes per user (second layer defense against fork bombs)
+cat >> /etc/security/limits.conf << 'LIMITS'
+*    hard    nproc    150
+*    soft    nproc    150
+root hard    nproc    300
+LIMITS
+
 echo "=== Container initialized ==="

@@ -22,6 +22,7 @@ def create_container(name, image='images:debian/12', profile='lab-student',
         '-p', profile,
         '-c', f'limits.memory={memory}',
         '-c', f'limits.cpu={cpu}',
+        '-c', 'limits.processes=256',
     ]
     _run(cmd)
 
