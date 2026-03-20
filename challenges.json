@@ -3,7 +3,7 @@
     "order": 1,
     "title": "查看指令手冊",
     "description": "請查看 pwd 在指令手冊中的名稱，並將名稱整行貼上來。看起來應該像是：\"pwd - Display the ..... directory.\"",
-    "hint": "man",
+    "hint": "man pwd",
     "check_type": "text",
     "expected_answer": "pwd - Display the full filename of the current working directory."
   },
@@ -18,16 +18,16 @@
   {
     "order": 3,
     "title": "查看使用者所屬的群組",
-    "description": "請找出目前登入的使用者所屬的群組。請將使用該查找使用者所屬群組的指令輸出內容全部貼上來。看起來應該像是：`uid=1000(user) gid=1000(user) ....`",
+    "description": "請找出目前登入的使用者所屬的群組。請將查找使用者所屬群組的指令輸出內容全部貼上來。看起來應該像是：`uid=1000(user) gid=1000(user) ....`",
     "hint": "id",
-    "check_type": "text",
-    "expected_answer": "尚未完成"
+    "check_type": "script",
+    "check_script": "check_id"
   },
   {
     "order": 4,
     "title": "更改密碼",
     "description": "請將 user 帳號的密碼從 `user` 改為 `linux-lab-2026`。\n\n完成後點擊提交答案，系統會透過 SSH 驗證你的新密碼。",
-    "hint": "passwd （然後依照提示輸入舊密碼和新密碼）",
+    "hint": "passwd（然後依照提示輸入舊密碼和新密碼）",
     "check_type": "ssh"
   },
   {
@@ -41,8 +41,8 @@
   {
     "order": 6,
     "title": "列出檔案",
-    "description": "請列出 `/home/user/challenges/` 目錄下的所有檔案（包含隱藏檔案）。\n\n提示：使用 `ls` 指令搭配適當的參數。\n\n請輸入隱藏檔案的名稱（以 `.` 開頭的那個）。",
-    "hint": "使用 `ls -a` 列出所有檔案，包含隱藏檔案。",
+    "description": "請列出 `/home/user/challenges/` 目錄下的所有檔案（包含隱藏檔案）。\n\n請輸入隱藏檔案的名稱（以 `.` 開頭的那個）。",
+    "hint": "使用 `ls` 指令搭配適當的參數來顯示隱藏檔案。",
     "check_type": "text",
     "expected_answer": ".secret_flag"
   },
@@ -73,47 +73,47 @@
   {
     "order": 10,
     "title": "刪除檔案與資料夾",
-    "description": "請刪除以下三個項目：\n\n1. 檔案 `/home/user/challenges/delete_me.txt`\n2. 資料夾 `/home/user/challenges/remove_this/`\n3. 資料夾 `/opt/protected_folder/`\n\n完成後點擊提交答案。",
-    "hint": "前兩個可以直接用 `rm` 和 `rm -r` 刪除。第三個資料夾的擁有者是 root，需要加 `sudo` 才能刪除：`sudo rm -r /opt/protected_folder/`",
+    "description": "請完成以下三個刪除任務：\n\n1. 刪除檔案 `/home/user/challenges/delete_me.txt`\n2. 刪除資料夾 `/home/user/challenges/remove_this_dir/`\n3. 刪除資料夾 `/home/user/challenges/protected_dir/`\n\n完成後點擊提交答案。",
+    "hint": "前兩個可以直接用 `rm` 和 `rm -r` 刪除。\n\n第三個資料夾的擁有者是 root，你需要使用 `sudo` 才能刪除它。",
     "check_type": "script",
     "check_script": "check_delete"
   },
   {
     "order": 11,
     "title": "複製檔案與資料夾",
-    "description": "請完成以下兩個操作：\n\n1. 將 `/home/user/challenges/copy_me.txt` 複製到 `/home/user/challenges/copied.txt`\n2. 將 `/home/user/challenges/copy_this_dir/` 整個資料夾複製到 `/home/user/challenges/copied_dir/`\n\n完成後點擊提交答案。",
+    "description": "請完成以下兩個複製任務：\n\n1. 將 `/home/user/challenges/original.txt` 複製為 `/home/user/challenges/copy_of_original.txt`\n2. 將資料夾 `/home/user/challenges/sample_dir/` 複製為 `/home/user/challenges/sample_dir_backup/`\n\n完成後點擊提交答案。",
     "hint": "使用 `cp` 複製檔案，使用 `cp -r` 複製資料夾。",
     "check_type": "script",
-    "check_script": "check_copy"
+    "check_script": "check_cp"
   },
   {
     "order": 12,
     "title": "移動與重新命名檔案",
-    "description": "請完成以下兩個操作：\n\n1. 將 `/home/user/challenges/move_me.txt` 移動到 `/home/user/documents/move_me.txt`\n2. 將 `/home/user/challenges/rename_me.txt` 重新命名為 `/home/user/challenges/renamed.txt`\n\n完成後點擊提交答案。",
-    "hint": "使用 `mv` 指令可以移動檔案，也可以重新命名檔案。",
+    "description": "請完成以下兩個任務：\n\n1. 將 `/home/user/challenges/move_me.txt` 移動到 `/home/user/challenges/moved/move_me.txt`\n2. 將 `/home/user/challenges/rename_me.txt` 重新命名為 `/home/user/challenges/renamed.txt`\n\n完成後點擊提交答案。",
+    "hint": "兩個任務都可以使用 `mv` 指令完成。移動和重新命名其實是同一個指令！",
     "check_type": "script",
-    "check_script": "check_move"
+    "check_script": "check_mv"
   },
   {
     "order": 13,
     "title": "尋找檔案",
-    "description": "在你的機器某處藏了一個叫做 `hidden_treasure.txt` 的檔案。請找到它，並輸入該檔案的完整絕對路徑。",
+    "description": "在你的機器某處藏了一個叫做 `hidden_treasure.txt` 的檔案。請找到它，並貼上該檔案的完整絕對路徑。",
     "hint": "find / -name \"hidden_treasure.txt\" 2>/dev/null",
     "check_type": "text",
-    "expected_answer": "尚未完成"
+    "expected_answer": "/var/lib/hidden_treasure.txt"
   },
   {
     "order": 14,
-    "title": "建立符號連結",
-    "description": "請為 `/home/user/challenges/original.txt` 建立一個軟連結（symbolic link），連結路徑為 `/home/user/challenges/shortcut.txt`。\n\n完成後點擊提交答案。",
-    "hint": "ln -s /home/user/challenges/original.txt /home/user/challenges/shortcut.txt",
+    "title": "建立軟連結",
+    "description": "請為 `/home/user/challenges/original.txt` 建立一個軟連結（symbolic link），連結位置為 `/home/user/challenges/link_to_original`。\n\n完成後點擊提交答案。",
+    "hint": "ln -s /home/user/challenges/original.txt /home/user/challenges/link_to_original",
     "check_type": "script",
-    "check_script": "check_symlink"
+    "check_script": "check_softlink"
   },
   {
     "order": 15,
     "title": "使用 curl 查看 HTTP 標頭",
-    "description": "請使用 `curl` 查看 `http://google.com` 的 HTTP 回應標頭（header）。\n\n請貼上回應的第一行（HTTP 狀態行）。",
+    "description": "請使用 `curl` 查看 `http://google.com` 的 HTTP 回應標頭（只要標頭，不要內容）。\n\n請貼上回應的第一行（HTTP 狀態行）。",
     "hint": "curl -I http://google.com",
     "check_type": "text",
     "expected_answer": "HTTP/1.1 301 Moved Permanently"
@@ -121,24 +121,24 @@
   {
     "order": 16,
     "title": "DNS 查詢",
-    "description": "請查詢 `foo.com` 的 A 記錄，並貼上查詢結果中的 IP 位址。\n\n注意：請確保你查到的是正確的 IP。",
-    "hint": "這台機器的 DNS 設定可能不正確，試試指定 DNS 伺服器：`dig @1.1.1.1 A foo.com`",
+    "description": "請查詢 `foo.com` 的 A 記錄，並貼上查到的 IP 位址。",
+    "hint": "你的機器預設的 DNS 伺服器可能無法正確解析這個域名。試試指定使用 `1.1.1.1` 作為 DNS 伺服器。\n\n使用 `dig @1.1.1.1 foo.com A`",
     "check_type": "text",
     "expected_answer": "50.16.218.27"
   },
   {
     "order": 17,
     "title": "查看連接埠監聽狀態",
-    "description": "請查看 SSH 服務（port 22）在 IPv4 上的監聽狀態。\n\n請貼上該行完整的輸出（只需要 IPv4 的那一行）。",
-    "hint": "ss -tlnp | grep :22",
+    "description": "請查看 port 22 (SSH) 目前的監聽狀態。\n\n請貼上 IPv4 那一行的完整輸出（看起來像是 `LISTEN 0 ... 0.0.0.0:22 ...`）。",
+    "hint": "使用 `ss -tlnp` 列出所有正在監聽的 TCP 連接埠，找到 port 22 的那行（IPv4）。",
     "check_type": "text",
-    "expected_answer": "LISTEN 0      4096         0.0.0.0:22        0.0.0.0:*"
+    "expected_answer": "LISTEN 0 4096 0.0.0.0:22 0.0.0.0:*"
   },
   {
     "order": 18,
     "title": "壓縮與解壓縮",
-    "description": "請完成以下兩個操作：\n\n1. 將 `/home/user/challenges/archive_me/` 資料夾打包壓縮為 `/home/user/challenges/archive_me.tar.gz`\n2. 將 `/home/user/challenges/extract_me.tar.gz` 解壓縮到 `/home/user/challenges/extracted/` 目錄\n\n完成後點擊提交答案。",
-    "hint": "壓縮：`tar -czf archive_me.tar.gz archive_me/`\n解壓縮：`mkdir extracted && tar -xzf extract_me.tar.gz -C extracted/`",
+    "description": "請完成以下兩個任務：\n\n1. 將 `/home/user/challenges/compress_me/` 資料夾打包壓縮為 `/home/user/challenges/compress_me.tar.gz`\n2. 將 `/home/user/challenges/extract_me.tar.gz` 解壓縮到 `/home/user/challenges/extracted/` 目錄\n\n完成後點擊提交答案。",
+    "hint": "壓縮：`tar -czf compress_me.tar.gz compress_me/`\n解壓縮：`mkdir extracted && tar -xzf extract_me.tar.gz -C extracted/`",
     "check_type": "script",
     "check_script": "check_tar"
   },
@@ -154,7 +154,7 @@
     "order": 20,
     "title": "修改檔案擁有者",
     "description": "請將 `/home/user/challenges/22.sh` 的擁有者改為 `user`。\n\n完成後點擊提交答案。",
-    "hint": "這個檔案的擁有者是 root，你需要使用 `sudo chown user:user /home/user/challenges/22.sh`。",
+    "hint": "這個檔案目前的擁有者是 root，你需要使用 `sudo chown user /home/user/challenges/22.sh`。",
     "check_type": "script",
     "check_script": "check_chown"
   },
@@ -162,22 +162,22 @@
     "order": 21,
     "title": "執行腳本",
     "description": "請執行 `/home/user/challenges/22.sh`，並貼上它的輸出內容。",
-    "hint": "./22.sh 或 bash /home/user/challenges/22.sh",
+    "hint": "./home/user/challenges/22.sh 或 bash /home/user/challenges/22.sh",
     "check_type": "text",
     "expected_answer": "This is GDG NTUST."
   },
   {
     "order": 22,
     "title": "安裝並管理服務",
-    "description": "請完成以下步驟：\n\n1. 使用 `apt` 安裝 nginx\n2. 啟動 nginx 服務\n3. 設定 nginx 開機自動啟動\n\n完成後點擊提交答案，系統會自動檢查 port 80 是否有回應。",
+    "description": "請完成以下步驟：\n\n1. 使用 `apt` 安裝 nginx\n2. 使用 `systemctl start nginx` 啟動它\n3. 使用 `systemctl enable nginx` 設定開機自動啟動\n\n完成後點擊提交答案，系統會自動檢查你的 port 80 是否有回應。",
     "hint": "sudo apt install -y nginx && sudo systemctl start nginx && sudo systemctl enable nginx",
     "check_type": "http"
   },
   {
     "order": 23,
     "title": "下載並安裝 .deb 套件",
-    "description": "請完成以下步驟：\n\n1. 使用 `wget` 下載 fastfetch：\n   `https://github.com/fastfetch-cli/fastfetch/releases/download/2.60.0/fastfetch-linux-amd64.deb`\n2. 使用 `dpkg` 安裝下載的 `.deb` 檔案\n3. 執行 `fastfetch` 並貼上 Host 欄位的值\n\n完成後貼上答案。",
-    "hint": "wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.60.0/fastfetch-linux-amd64.deb && sudo dpkg -i fastfetch-linux-amd64.deb && fastfetch",
+    "description": "請完成以下步驟：\n\n1. 使用 `wget` 下載 fastfetch：\n   `https://github.com/fastfetch-cli/fastfetch/releases/download/2.60.0/fastfetch-linux-amd64.deb`\n2. 使用 `dpkg -i` 安裝下載的 .deb 檔案\n3. 執行 `fastfetch` 並貼上 Host 欄位的值\n\n完成後貼上 Host 欄位的值。",
+    "hint": "wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.60.0/fastfetch-linux-amd64.deb\nsudo dpkg -i fastfetch-linux-amd64.deb\nfastfetch",
     "check_type": "script",
     "check_script": "check_fastfetch"
   },

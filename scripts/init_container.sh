@@ -10,7 +10,7 @@ apt-get update
 apt-get install -y --no-install-recommends \
     openssh-server sudo nano vim curl wget \
     net-tools iproute2 procps htop \
-    unzip xz-utils file \
+    unzip xz-utils file man-db dnsutils \
     pcmanfm lxterminal openbox xrdp xorgxrdp dbus-x11 \
     locales
 
@@ -37,50 +37,90 @@ systemctl enable xrdp
 systemctl start ssh
 systemctl start xrdp
 
+# Intentionally misconfigure DNS for Q16 (dig challenge)
+echo "nameserver 10.99.0.254" > /etc/resolv.conf
+
 # Setup challenges directory
 CHAL_DIR="/home/user/challenges"
 mkdir -p "$CHAL_DIR"
+mkdir -p /home/user/documents
 
-# Q2: Hidden file
+# ============================================================
+# Challenge file setup (matches challenges.json question order)
+# ============================================================
+
+# Q6: Hidden file (ls -a)
 echo "FLAG{ls_master}" > "$CHAL_DIR/.secret_flag"
 
-# Q3: Hidden treasure somewhere in the filesystem
-mkdir -p /var/hidden
-echo "FLAG{treasure_found}" > /var/hidden/hidden_treasure.txt
-
-# Q5: Compressed archives
-echo "FLAG{zip_cracked}" > /tmp/flag1.txt
-cd /tmp && zip "$CHAL_DIR/archive1.zip" flag1.txt && rm flag1.txt
-
-echo "FLAG{tar_expert}" > /tmp/flag2.txt
-cd /tmp && tar czf "$CHAL_DIR/archive2.tar.gz" flag2.txt && rm flag2.txt
-
-# Q6: Executable file
-cat > "$CHAL_DIR/run_me" << 'SCRIPT'
-#!/bin/bash
-echo "FLAG{chmod_pro}"
-SCRIPT
-chmod 644 "$CHAL_DIR/run_me"  # NOT executable yet — student must chmod +x
-
-# Q7: File to delete
-echo "Delete this file!" > "$CHAL_DIR/delete_me.txt"
-
-# Q8: File with specific permissions
-touch "$CHAL_DIR/permission_check"
-chmod 640 "$CHAL_DIR/permission_check"
-
-# Q9: File to edit
+# Q8: File to edit
 echo "Change this text" > "$CHAL_DIR/edit_me.txt"
 
-# Q13: Download fastfetch .deb (or create a dummy)
-ARCH=$(dpkg --print-architecture)
-wget -q "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-${ARCH}.deb" \
-    -O "$CHAL_DIR/fastfetch.deb" 2>/dev/null || \
-    echo "# Download fastfetch manually" > "$CHAL_DIR/README_fastfetch.txt"
+# Q9: mkdir target (students need to create this)
+# (intentionally NOT created — they must mkdir it)
 
-# Set ownership
-chown -R user:user "$CHAL_DIR"
+# Q10: Files/dirs to delete
+echo "Delete this file!" > "$CHAL_DIR/delete_me.txt"
+mkdir -p "$CHAL_DIR/remove_this_dir"
+echo "remove me" > "$CHAL_DIR/remove_this_dir/file.txt"
+mkdir -p "$CHAL_DIR/protected_dir"
+echo "protected" > "$CHAL_DIR/protected_dir/secret.txt"
+chown -R root:root "$CHAL_DIR/protected_dir"
+
+# Q11: Files/dirs to copy
+echo "I am the original file." > "$CHAL_DIR/original.txt"
+mkdir -p "$CHAL_DIR/sample_dir"
+echo "sample file 1" > "$CHAL_DIR/sample_dir/file1.txt"
+echo "sample file 2" > "$CHAL_DIR/sample_dir/file2.txt"
+
+# Q12: Files to move/rename
+echo "Move me to another location!" > "$CHAL_DIR/move_me.txt"
+echo "Rename me to something else!" > "$CHAL_DIR/rename_me.txt"
+mkdir -p "$CHAL_DIR/moved"
+
+# Q13: Hidden treasure somewhere in the filesystem
+mkdir -p /var/lib
+echo "FLAG{treasure_found}" > /var/lib/hidden_treasure.txt
+
+# Q14: Symlink target (original.txt already created in Q11)
+
+# Q18: Compress and extract challenges
+mkdir -p "$CHAL_DIR/compress_me"
+echo "file to compress 1" > "$CHAL_DIR/compress_me/data1.txt"
+echo "file to compress 2" > "$CHAL_DIR/compress_me/data2.txt"
+
+# Create a tar.gz for students to extract
+mkdir -p /tmp/extract_content
+echo "extracted file 1" > /tmp/extract_content/extracted1.txt
+echo "extracted file 2" > /tmp/extract_content/extracted2.txt
+(cd /tmp && tar czf "$CHAL_DIR/extract_me.tar.gz" extract_content/)
+rm -rf /tmp/extract_content
+
+# Q19-21: Script file (owned by root, not executable)
+cat > "$CHAL_DIR/22.sh" << 'SCRIPT'
+#!/bin/bash
+echo "This is GDG NTUST."
+SCRIPT
+chmod 644 "$CHAL_DIR/22.sh"
+chown root:root "$CHAL_DIR/22.sh"
+
+# Set ownership for challenges (except protected_dir and 22.sh which are root-owned)
+chown user:user "$CHAL_DIR"
+chown user:user "$CHAL_DIR/.secret_flag"
+chown user:user "$CHAL_DIR/edit_me.txt"
+chown user:user "$CHAL_DIR/delete_me.txt"
+chown -R user:user "$CHAL_DIR/remove_this_dir"
+# protected_dir stays root-owned (Q10)
+chown user:user "$CHAL_DIR/original.txt"
+chown -R user:user "$CHAL_DIR/sample_dir"
+chown user:user "$CHAL_DIR/move_me.txt"
+chown user:user "$CHAL_DIR/rename_me.txt"
+chown -R user:user "$CHAL_DIR/moved"
+chown -R user:user "$CHAL_DIR/compress_me"
+chown user:user "$CHAL_DIR/extract_me.tar.gz"
+# 22.sh stays root-owned (Q19-20)
+
 chown user:user /home/user/.bashrc
+chown -R user:user /home/user/documents
 
 # Openbox autostart for GUI sessions
 mkdir -p /home/user/.config/openbox
