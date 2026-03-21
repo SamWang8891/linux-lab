@@ -2,7 +2,7 @@
   {
     "order": 1,
     "title": "查看指令手冊",
-    "description": "請查看 pwd 在指令手冊中的名稱，並將名稱整行貼上來。看起來應該像是：`pwd - Display the ..... directory.`",
+    "description": "請查看 pwd 在指令手冊中的名稱，並將名稱整行貼上來。看起來應該像是：\"pwd - Display the ..... directory.\"",
     "hint": "man pwd",
     "check_type": "text",
     "expected_answer": "pwd - Display the full filename of the current working directory."
@@ -168,13 +168,6 @@
   },
   {
     "order": 22,
-    "title": "安裝並管理服務",
-    "description": "請完成以下步驟：\n\n1. 使用 `apt` 安裝 nginx\n2. 使用 `systemctl start nginx` 啟動它\n3. 使用 `systemctl enable nginx` 設定開機自動啟動\n\n完成後點擊提交答案，系統會自動檢查你的 port 80 是否有回應。",
-    "hint": "sudo apt install -y nginx && sudo systemctl start nginx && sudo systemctl enable nginx",
-    "check_type": "http"
-  },
-  {
-    "order": 23,
     "title": "下載並安裝 .deb 套件",
     "description": "請完成以下步驟：\n\n1. 使用 `wget` 下載 fastfetch：\n   `https://github.com/fastfetch-cli/fastfetch/releases/download/2.60.0/fastfetch-linux-amd64.deb`\n2. 使用 `dpkg -i` 安裝下載的 .deb 檔案\n3. 執行 `fastfetch` 並貼上 Host 欄位的值\n\n完成後貼上 Host 欄位的值。",
     "hint": "wget https://github.com/fastfetch-cli/fastfetch/releases/download/2.60.0/fastfetch-linux-amd64.deb\nsudo dpkg -i fastfetch-linux-amd64.deb\nfastfetch",
@@ -182,7 +175,7 @@
     "check_script": "check_fastfetch"
   },
   {
-    "order": 24,
+    "order": 23,
     "title": "修改 .bashrc",
     "description": "請編輯 `/home/user/.bashrc`，在最後一行加入：\n\n`export LAB_COMPLETE=1`\n\n然後重新載入它。完成後點擊提交答案。",
     "hint": "echo \"export LAB_COMPLETE=1\" >> ~/.bashrc && source ~/.bashrc",

@@ -1,5 +1,6 @@
 """Linux Lab — Flask application."""
 import os
+import re
 import string
 import random
 import threading
@@ -20,6 +21,11 @@ from quiz_checker import QUIZ_QUESTIONS, check_answer
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+@app.template_filter('inline_code')
+def inline_code_filter(text):
+    from markupsafe import Markup, escape
+    return Markup(re.sub(r'`([^`]+)`', r'<code>\1</code>', str(escape(text))))
 
 db.init_app(app)
 csrf = CSRFProtect(app)

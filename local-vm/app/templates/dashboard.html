@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Linux Lab — 學習任務{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:1.5rem">👋 歡迎來到 Linux Lab</h2>
+
+<div class="card">
+    <p style="color:#94a3b8;margin-bottom:0.5rem">
+        打開終端機，完成以下任務來學習 Linux 基礎操作。遇到困難時可以展開提示。
+    </p>
+    <p style="color:#64748b;font-size:0.85rem">
+        帳號：<code>user</code> ／密碼：<code>user</code> ／有 sudo 權限
+    </p>
+</div>
+
+<div class="card">
+    <h2>📝 學習任務</h2>
+
+    <table>
+        <thead>
+            <tr><th>#</th><th>任務</th><th>狀態</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for q in questions %}
+            <tr>
+                <td>{{ q.order }}</td>
+                <td>{{ q.title }}</td>
+                <td>
+                    {% if answered.get(q.id) and answered[q.id].is_correct %}
+                        <span class="status-badge status-running">✅ 完成</span>
+                    {% else %}
+                        <span class="status-badge status-stopped">⬜ 未完成</span>
+                    {% endif %}
+                </td>
+                <td><a href="{{ url_for('quiz', question_id=q.id) }}" class="btn btn-primary" style="padding:0.3rem 0.8rem;font-size:0.8rem">作答</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top:1rem">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem">
+            <span>進度</span><span>{{ solved }}/{{ total }}</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:{{ (solved/total*100) if total else 0 }}%"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
