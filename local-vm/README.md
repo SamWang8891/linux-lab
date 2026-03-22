@@ -9,7 +9,7 @@
 
 你需要：
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (macOS / Windows 都有)
-- [Debian 12 netinst ISO](https://cdimage.debian.org/cdimage/archive/12.10.0/) (選擇你的架構：amd64 或 arm64)
+- [Debian 12.10.0 netinst ISO](https://cdimage.debian.org/cdimage/archive/12.10.0/) (選擇你的架構：amd64 或 arm64)
 - 本 repo 的 `local-vm/` 資料夾
 
 ### 格式轉換工具 (可選)
