@@ -2,7 +2,7 @@
   {
     "order": 1,
     "title": "查看指令手冊",
-    "description": "請查看 pwd 在指令手冊中的名稱，並將名稱整行貼上來。看起來應該像是：`pwd - Display the ..... directory.`",
+    "description": "請查看 pwd 在指令手冊中的名稱，並將名稱整行貼上來。看起來應該像是：`pwd - print name ..... directory.`",
     "hint": "man pwd",
     "check_type": "text",
     "expected_answer": "pwd - print name of current/working directory"
