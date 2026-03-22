@@ -148,7 +148,7 @@ echo "file to compress 1" > "$CHAL_DIR/compress_me/data1.txt"
 echo "file to compress 2" > "$CHAL_DIR/compress_me/data2.txt"
 mkdir -p /tmp/extract_content
 echo "extracted file 1" > /tmp/extract_content/extracted1.txt
-echo "extracted file 2" > /tmp/extract_content/extracted2.txt"
+echo "extracted file 2" > /tmp/extract_content/extracted2.txt
 (cd /tmp && tar czf "$CHAL_DIR/extract_me.tar.gz" extract_content/)
 rm -rf /tmp/extract_content
 
