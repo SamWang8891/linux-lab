@@ -1,19 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Linux Lab — 學習任務{% endblock %}
 {% block content %}
-<h2 style="margin-bottom:1.5rem">👋 歡迎來到 Linux Lab</h2>
+<h2 style="margin-bottom:1.5rem">🐧 Linux Lab — 學習任務</h2>
 
 <div class="card">
-    <p style="color:#94a3b8;margin-bottom:0.5rem">
-        打開終端機，完成以下任務來學習 Linux 基礎操作。遇到困難時可以展開提示。
-    </p>
-    <p style="color:#64748b;font-size:0.85rem">
-        帳號：<code>user</code> ／密碼：<code>user</code> ／有 sudo 權限
-    </p>
-</div>
-
-<div class="card">
-    <h2>📝 學習任務</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h2>📝 任務列表</h2>
+        <form method="POST" action="{{ url_for('reset_progress') }}" onsubmit="return confirm('確定要重置所有進度和挑戰檔案嗎？')">
+            <button class="btn btn-danger" style="padding:0.4rem 0.8rem;font-size:0.85rem">🔄 重置進度</button>
+        </form>
+    </div>
 
     <table>
         <thead>
@@ -44,27 +40,15 @@
         <div class="progress-bar">
             <div class="progress-fill" style="width:{{ (solved/total*100) if total else 0 }}%"></div>
         </div>
-    <div class="card">
-        <h2 style="margin-bottom:0.5rem">Title: 告訴 AI 我們在幹麻</h2>
-        <div style="background:#1e293b;padding:1rem;border-radius:0.5rem;position:relative">
-            <div style="padding-right:4rem">
-                <code id="ai-info-text" style="color:#e2e8f0;font-size:0.9rem;white-space:pre-wrap">這是一堂 GDG 的社課，內容為 Linux 指令的使用教學。學生正在使用 Guacamole 操控靶機，Guacamole 提供 terminal 以及 rdp，rdp 的話他只能用 pcmanfm 和 lxterminal，是 xrd 精簡化桌面。他需要根據網頁上的提示解出不同的題目。
-以下是他要問的題目</code>
-            </div>
-            <button class="btn btn-secondary" style="position:absolute;top:0.5rem;right:0.5rem;padding:0.2rem 0.5rem;font-size:0.75rem" onclick="copyText('ai-info-text', this)">📋 複製</button>
-        </div>
     </div>
 </div>
-{% endblock %}
-{% block scripts %}
-<script>
-function copyText(elementId, btn) {
-    const text = document.getElementById(elementId).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✅ 已複製';
-        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
-    });
-}
-</script>
+
+<div class="card">
+    <h2>💡 使用說明</h2>
+    <p style="line-height:1.8;color:#94a3b8">
+        打開旁邊的 <strong>Terminal</strong> (終端機)，根據每一題的指示完成任務。<br>
+        完成後回到這個頁面點擊 <strong>作答</strong> 來驗證你的答案。<br>
+        帳號：<code>user</code> ／密碼：<code>user</code> ／支援 <code>sudo</code>
+    </p>
+</div>
 {% endblock %}

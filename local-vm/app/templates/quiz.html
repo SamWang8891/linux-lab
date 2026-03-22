@@ -27,7 +27,7 @@
             {% set no_input_needed = question.check_type in ['http', 'ssh'] or question.check_script in ['check_edit_file', 'check_bashrc', 'check_mkdir', 'check_delete', 'check_cp', 'check_mv', 'check_softlink', 'check_tar', 'check_chmod', 'check_chown'] %}
             <form method="POST" style="margin-top:1rem">
                 {% if no_input_needed %}
-                    <p style="color:#eab308;margin-bottom:0.75rem">💡 完成操作後直接點擊提交答案</p>
+                    <p style="color:#eab308;margin-bottom:0.75rem">💡 直接點擊提交答案</p>
                 {% else %}
                     <label>你的答案：</label>
                     <input type="text" name="answer" required autofocus

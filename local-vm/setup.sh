@@ -53,7 +53,7 @@ cat > /home/user/.config/autostart/quiz-browser.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Linux Lab Quiz
-Exec=firefox-esr http://localhost
+Exec=firefox-esr
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
@@ -256,8 +256,9 @@ cp "${PROJECT_ROOT}/models.py" /opt/linux-lab/models.py
 cp "${PROJECT_ROOT}/config.py" /opt/linux-lab/config.py
 cp "${PROJECT_ROOT}/quiz_checker.py" /opt/linux-lab/quiz_checker.py
 cp "${PROJECT_ROOT}/challenges.json" /opt/linux-lab/challenges.json
-cp -r "${PROJECT_ROOT}/templates" /opt/linux-lab/templates
 cp -r "${PROJECT_ROOT}/static" /opt/linux-lab/static
+# Use local-specific templates (no Guacamole/LXD references)
+cp -r "${APP_SRC}/templates" /opt/linux-lab/templates
 
 cd /opt/linux-lab
 python3 -m venv venv

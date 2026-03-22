@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}Linux Lab{% endblock %}</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/site.webmanifest">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', 'Noto Sans TC', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
         .navbar { background: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
         .navbar h1 { font-size: 1.3rem; color: #38bdf8; }
-        .navbar a { color: #94a3b8; text-decoration: none; margin-left: 1rem; }
-        .navbar a:hover { color: #e2e8f0; }
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
         .card { background: #1e293b; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #334155; }
         .card h2 { color: #38bdf8; margin-bottom: 1rem; font-size: 1.2rem; }
@@ -53,13 +55,9 @@
 </head>
 <body>
     <nav class="navbar">
-        <a href="/" style="text-decoration:none"><h1>🐧 Linux Lab</h1></a>
+        <h1><a href="/" style="color:#38bdf8;text-decoration:none">🐧 Linux Lab</a></h1>
         <div>
-            <form method="POST" action="/reset" style="display:inline"
-                  onsubmit="return confirm('確定要重置所有進度嗎？挑戰檔案也會被還原！')">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button class="btn btn-danger" style="padding:0.4rem 0.8rem;font-size:0.8rem">🔄 重置進度</button>
-            </form>
+            <span style="color:#64748b">本機模式</span>
         </div>
     </nav>
     <div class="container">
