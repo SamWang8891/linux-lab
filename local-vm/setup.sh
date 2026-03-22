@@ -81,20 +81,6 @@ EOF
 
 chown -R user:user /home/user/.config
 
-# Disable hardware acceleration in Firefox (crashes in VMs without GPU)
-sudo -u user timeout 5 firefox-esr --headless 2>/dev/null || true
-sleep 1
-FFPROFILE=$(find /home/user/.mozilla/firefox -maxdepth 1 -name '*.default*' -type d | head -1)
-if [ -n "$FFPROFILE" ]; then
-    cat > "$FFPROFILE/user.js" << 'FFEOF'
-user_pref("layers.acceleration.disabled", true);
-user_pref("gfx.webrender.all", false);
-user_pref("media.hardware-video-decoding.enabled", false);
-user_pref("widget.dmabuf.force-enabled", false);
-FFEOF
-    chown -R user:user /home/user/.mozilla
-fi
-
 echo "=== [5/8] Setting up DNS challenge ==="
 apt-get install -y --no-install-recommends dnsmasq
 cat > /etc/dnsmasq.d/lab-override.conf << 'DNSCONF'
