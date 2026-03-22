@@ -47,6 +47,9 @@ bash /tmp/lab-net-isolate.sh
 # Create a dedicated chain for lab-net → host filtering
 iptables -N LAB_HOST_FILTER 2>/dev/null || iptables -F LAB_HOST_FILTER
 
+# Allow responses to host-initiated connections (guacd SSH/RDP to containers)
+iptables -A LAB_HOST_FILTER -m state --state ESTABLISHED,RELATED -j ACCEPT
+
 # Allow DNS (container needs to resolve via gateway for NAT internet)
 iptables -A LAB_HOST_FILTER -p udp --dport 53 -j ACCEPT
 iptables -A LAB_HOST_FILTER -p tcp --dport 53 -j ACCEPT

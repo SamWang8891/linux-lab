@@ -106,6 +106,7 @@ info "設定容器安全隔離規則..."
 
 # Create host filter chain (idempotent)
 iptables -N LAB_HOST_FILTER 2>/dev/null || iptables -F LAB_HOST_FILTER
+iptables -A LAB_HOST_FILTER -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A LAB_HOST_FILTER -p udp --dport 53 -j ACCEPT
 iptables -A LAB_HOST_FILTER -p tcp --dport 53 -j ACCEPT
 iptables -A LAB_HOST_FILTER -p udp --dport 67 -j ACCEPT
