@@ -15,7 +15,8 @@ sudo apt install -y packer qemu-system-x86 qemu-system-arm qemu-utils genisoimag
 
 ### macOS (Intel or Apple Silicon)
 ```bash
-brew install packer qemu
+brew tap hashicorp/tap
+brew install hashicorp/tap/packer qemu
 ```
 
 ---
@@ -29,6 +30,8 @@ cd gdg-thm/local-vm/packer
 
 ### 1. 建置 x86_64 (Intel / AMD / Windows / Intel Mac)
 ```bash
+packer init .
+
 # 建置 QCOW2 格式 (Debian 12 + XFCE)
 packer build -var 'arch=amd64' linux-lab.pkr.hcl
 
@@ -41,6 +44,8 @@ bash scripts/make_ova.sh output-amd64/linux-lab.vmdk amd64
 
 ### 2. 建置 ARM64 (Apple Silicon M1/M2/M3)
 ```bash
+packer init .
+
 # 建置 QCOW2 格式 (用於 UTM 或 QEMU)
 packer build -var 'arch=arm64' linux-lab.pkr.hcl
 

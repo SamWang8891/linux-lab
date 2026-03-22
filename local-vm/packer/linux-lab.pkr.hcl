@@ -12,18 +12,18 @@ variable "arch" {
   default = "amd64"
   validation {
     condition     = contains(["amd64", "arm64"], var.arch)
-    error_message = "arch must be amd64 or arm64"
+    error_message = "Arch must be amd64 or arm64."
   }
 }
 
 locals {
-  iso_url_amd64    = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.10.0-amd64-netinst.iso"
-  iso_sha_amd64    = "ile:https://cdimage.debian.org/cdimage/archive/12.10.0/amd64/iso-cd/SHA256SUMS"
+  iso_url_amd64    = "https://cdimage.debian.org/cdimage/archive/12.10.0/amd64/iso-cd/debian-12.10.0-amd64-netinst.iso"
+  iso_sha_amd64    = "file:https://cdimage.debian.org/cdimage/archive/12.10.0/amd64/iso-cd/SHA256SUMS"
   qemu_bin_amd64   = "qemu-system-x86_64"
   machine_amd64    = "q35"
 
-  iso_url_arm64    = "https://cdimage.debian.org/debian-cd/current/arm64/iso-cd/debian-12.10.0-arm64-netinst.iso"
-  iso_sha_arm64    = "ile:https://cdimage.debian.org/cdimage/archive/12.10.0/arm64/iso-cd/SHA256SUMS"
+  iso_url_arm64    = "https://cdimage.debian.org/cdimage/archive/12.10.0/arm64/iso-cd/debian-12.10.0-arm64-netinst.iso"
+  iso_sha_arm64    = "file:https://cdimage.debian.org/cdimage/archive/12.10.0/arm64/iso-cd/SHA256SUMS"
   qemu_bin_arm64   = "qemu-system-aarch64"
   machine_arm64    = "virt"
 
