@@ -22,7 +22,7 @@ apt-get update
 apt-get install -y --no-install-recommends \
     nginx python3 python3-venv python3-pip \
     xfce4 xfce4-terminal xfce4-goodies lightdm \
-    firefox-esr dbus-x11 \
+    chromium dbus-x11 \
     nano vim curl wget man-db dnsutils \
     net-tools iproute2 procps htop \
     unzip xz-utils file \
@@ -53,7 +53,7 @@ cat > /home/user/.config/autostart/quiz-browser.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Linux Lab Quiz
-Exec=firefox-esr http://localhost:80
+Exec=chromium --no-sandbox http://localhost:80
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
