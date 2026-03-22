@@ -160,14 +160,19 @@ def _run_check_script(script_name, answer):
         rc, out, _ = _run_local(['stat', '-c', '%U', '/home/user/challenges/22.sh'])
         return rc == 0 and out.strip() == 'user'
 
+    elif script_name == 'check_ss_port22':
+        import re
+        pattern = r'LISTEN\s+\d+\s+\d+\s+0\.0\.0\.0:22\s+0\.0\.0\.0:\*'
+        return bool(re.search(pattern, answer.strip()))
+
     elif script_name == 'check_fastfetch':
         rc, _, _ = _run_local(['which', 'fastfetch'])
         return rc == 0 and len(answer.strip()) > 0
 
     elif script_name == 'check_bashrc':
         rc, out, _ = _run_local(
-            ['bash', '-c', 'source /home/user/.bashrc && echo $LAB_COMPLETE'])
-        return rc == 0 and out.strip() == '1'
+            ['grep', '-q', 'export LAB_COMPLETE=1', '/home/user/.bashrc'])
+        return rc == 0
 
     return False
 

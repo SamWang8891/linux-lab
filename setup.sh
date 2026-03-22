@@ -91,6 +91,57 @@ iptables -C FORWARD -i docker0 -o lxdbr0 -j ACCEPT 2>/dev/null || \
 iptables -C FORWARD -i lxdbr0 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \
     iptables -I FORWARD -i lxdbr0 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
 
+# ─── Host protection: block container → host access ─────────────────────
+info "設定容器安全隔離規則..."
+
+# Create host filter chain (idempotent)
+iptables -N LAB_HOST_FILTER 2>/dev/null || iptables -F LAB_HOST_FILTER
+iptables -A LAB_HOST_FILTER -p udp --dport 53 -j ACCEPT
+iptables -A LAB_HOST_FILTER -p tcp --dport 53 -j ACCEPT
+iptables -A LAB_HOST_FILTER -p udp --dport 67 -j ACCEPT
+iptables -A LAB_HOST_FILTER -j DROP
+
+# Hook into INPUT for lab-net bridge
+for BRIF in lxdbr0 lab-net; do
+    iptables -C INPUT -i $BRIF -d 10.99.0.1 -j LAB_HOST_FILTER 2>/dev/null || \
+        iptables -I INPUT -i $BRIF -d 10.99.0.1 -j LAB_HOST_FILTER
+    iptables -C INPUT -i $BRIF ! -d 10.99.0.0/24 -j DROP 2>/dev/null || \
+        iptables -I INPUT -i $BRIF ! -d 10.99.0.0/24 -j DROP
+done
+
+# Block metadata service
+iptables -C FORWARD -s 10.99.0.0/24 -d 169.254.169.254 -j DROP 2>/dev/null || \
+    iptables -I FORWARD -s 10.99.0.0/24 -d 169.254.169.254 -j DROP
+
+# Inter-container isolation
+iptables -C FORWARD -i lxdbr0 -o lxdbr0 -j DROP 2>/dev/null || \
+    iptables -I FORWARD -i lxdbr0 -o lxdbr0 -j DROP 2>/dev/null || true
+
+ok "容器安全隔離規則設定完成"
+
+# Persist iptables rules across reboots
+if command -v iptables-save &>/dev/null; then
+    mkdir -p /etc/iptables
+    iptables-save > /etc/iptables/rules.v4
+    cat > /etc/systemd/system/lab-iptables.service << 'IPTEOF'
+[Unit]
+Description=Restore lab iptables rules
+After=network-pre.target
+Before=network.target
+Wants=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/iptables-restore /etc/iptables/rules.v4
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+IPTEOF
+    systemctl daemon-reload
+    systemctl enable lab-iptables
+fi
+
 ok "Docker ↔ LXD 路由設定完成"
 
 # ─── Guacamole (Docker Compose) ─────────────────────────────────────────

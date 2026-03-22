@@ -137,4 +137,39 @@ cat >> /etc/security/limits.conf << 'LIMITS'
 root hard    nproc    300
 LIMITS
 
+# ─── Security hardening (prevent container→host jailbreak) ──────────────
+
+# 1. Block the host gateway IP from inside the container (defense in depth)
+#    Primary protection is at host iptables level, this is a backup
+cat > /etc/network/if-up.d/block-host << 'BLOCKHOST'
+#!/bin/sh
+# Prevent user from accessing the LXD host gateway
+iptables -C OUTPUT -d 10.99.0.1 -p tcp --dport 22 -j DROP 2>/dev/null || \
+    iptables -A OUTPUT -d 10.99.0.1 -p tcp --dport 22 -j DROP
+iptables -C OUTPUT -d 10.99.0.1 -p tcp --dport 8080 -j DROP 2>/dev/null || \
+    iptables -A OUTPUT -d 10.99.0.1 -p tcp --dport 8080 -j DROP
+iptables -C OUTPUT -d 10.99.0.1 -p tcp --dport 5000 -j DROP 2>/dev/null || \
+    iptables -A OUTPUT -d 10.99.0.1 -p tcp --dport 5000 -j DROP
+BLOCKHOST
+chmod +x /etc/network/if-up.d/block-host
+
+# 2. Disable kernel module loading from inside container
+echo "install * /bin/false" > /etc/modprobe.d/disable-modules.conf 2>/dev/null || true
+
+# 3. Restrict dmesg access (hide kernel messages from unprivileged users)
+echo "kernel.dmesg_restrict=1" >> /etc/sysctl.conf
+sysctl -w kernel.dmesg_restrict=1 2>/dev/null || true
+
+# 4. Hide other users' processes
+echo "proc /proc proc defaults,hidepid=2 0 0" >> /etc/fstab 2>/dev/null || true
+
+# 5. Remove tools that could aid container escape
+apt-get remove -y --purge strace ltrace 2>/dev/null || true
+# Prevent installing debug/escape tools
+cat > /etc/apt/preferences.d/block-debug << 'APTPREF'
+Package: strace ltrace gdb
+Pin: release *
+Pin-Priority: -1
+APTPREF
+
 echo "=== Container initialized ==="

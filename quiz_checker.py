@@ -143,6 +143,14 @@ def _run_check_script(script_name, answer, container_name, container_ip):
             ['stat', '-c', '%U', '/home/user/challenges/22.sh'])
         return rc == 0 and out.strip() == 'user'
 
+    # Q16: Check ss output for port 22 — accept any backlog number
+    elif script_name == 'check_ss_port22':
+        import re
+        # Accept: LISTEN 0 <any_number> 0.0.0.0:22 0.0.0.0:*
+        # Also tolerate extra whitespace and optional trailing columns
+        pattern = r'LISTEN\s+\d+\s+\d+\s+0\.0\.0\.0:22\s+0\.0\.0\.0:\*'
+        return bool(re.search(pattern, answer.strip()))
+
     # Q23: Check fastfetch is installed
     elif script_name == 'check_fastfetch':
         rc, _, _ = lxd.exec_in_container(container_name,
@@ -152,7 +160,7 @@ def _run_check_script(script_name, answer, container_name, container_ip):
     # Q24: Check .bashrc has LAB_COMPLETE=1
     elif script_name == 'check_bashrc':
         rc, out, _ = lxd.exec_in_container(container_name,
-            ['bash', '-c', 'source /home/user/.bashrc && echo $LAB_COMPLETE'])
-        return rc == 0 and out.strip() == '1'
+            ['grep', '-q', 'export LAB_COMPLETE=1', '/home/user/.bashrc'])
+        return rc == 0
 
     return False

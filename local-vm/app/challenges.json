@@ -131,8 +131,8 @@
     "title": "查看連接埠監聽狀態",
     "description": "請查看 port 22 (SSH) 目前的監聽狀態。\n\n請貼上 IPv4 那一行的完整輸出（看起來像是 `LISTEN 0 ... 0.0.0.0:22 ...`）。",
     "hint": "使用 `ss -tlnp` 列出所有正在監聽的 TCP 連接埠，找到 port 22 的那行（IPv4）。",
-    "check_type": "text",
-    "expected_answer": "LISTEN 0 4096 0.0.0.0:22 0.0.0.0:*"
+    "check_type": "script",
+    "check_script": "check_ss_port22"
   },
   {
     "order": 18,
