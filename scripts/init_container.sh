@@ -41,7 +41,7 @@ systemctl start xrdp
 
 # DNS challenge: use dnsmasq to override foo.com → 0.0.0.0
 # Students must learn to query a specific DNS server (dig @1.1.1.1)
-apt-get install -y --no-install-recommends dnsmasq
+#apt-get install -y --no-install-recommends dnsmasq
 
 # Point resolv.conf to local dnsmasq
 echo "nameserver 127.0.0.53" > /etc/resolv.conf
@@ -49,8 +49,8 @@ echo "nameserver 127.0.0.53" > /etc/resolv.conf
 # Override foo.com with incorrect IP
 echo "123.123.123.123 foo.com" >> /etc/hosts
 
-systemctl enable dnsmasq
-systemctl restart dnsmasq
+#systemctl enable dnsmasq
+#systemctl restart dnsmasq
 
 # Setup challenges directory
 CHAL_DIR="/home/user/challenges"
