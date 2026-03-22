@@ -296,7 +296,11 @@ read -rp "安裝 VirtualBox Guest Additions? [Y/n] " ans_vbox
 case "${ans_vbox:-y}" in
     [Yy]*)
         echo ">>> 安裝 VirtualBox Guest Additions..."
-        apt-get update
+        # VBox guest packages are in contrib — enable it if not already
+        if ! grep -q 'contrib' /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null; then
+            sed -i 's/^deb \(.*\) bookworm main$/deb \1 bookworm main contrib/' /etc/apt/sources.list
+            apt-get update
+        fi
         apt-get install -y --no-install-recommends \
             virtualbox-guest-utils virtualbox-guest-x11
         echo ">>> VirtualBox Guest Additions 安裝完成"
