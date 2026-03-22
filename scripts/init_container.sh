@@ -45,7 +45,7 @@ apt-get install -y --no-install-recommends dnsmasq
 echo "nameserver 127.0.0.53" > /etc/resolv.conf
 
 # Override foo.com with incorrect IP
-echo "foo.com 123.123.123.123" >> /etc/hosts
+echo "123.123.123.123 foo.com" >> /etc/hosts
 
 systemctl enable dnsmasq
 systemctl restart dnsmasq
