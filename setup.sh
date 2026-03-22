@@ -84,6 +84,20 @@ fi
 
 # ─── Docker routing to LXD network ──────────────────────────────────────
 info "設定 Docker → LXD 網路路由 (guacd 需要連到 10.99.0.0/24)..."
+
+# 1. Enable IP Forwarding on the Host
+sysctl -w net.ipv4.ip_forward=1
+
+# 2. Enable NAT (Masquerade) for the LXD Subnet
+iptables -t nat -C POSTROUTING -s 10.99.0.0/24 ! -d 10.99.0.0/24 -j MASQUERADE 2>/dev/null || \
+    iptables -t nat -A POSTROUTING -s 10.99.0.0/24 ! -d 10.99.0.0/24 -j MASQUERADE
+
+# 3. Allow Forwarding through the Firewall
+iptables -C FORWARD -i lab-net -j ACCEPT 2>/dev/null || \
+    iptables -A FORWARD -i lab-net -j ACCEPT
+iptables -C FORWARD -o lab-net -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \
+    iptables -A FORWARD -o lab-net -m state --state RELATED,ESTABLISHED -j ACCEPT
+
 # Add route so Docker containers (guacd) can reach LXD containers
 # Check if the route already exists
 if ! ip route show | grep -q '10.99.0.0/24'; then
