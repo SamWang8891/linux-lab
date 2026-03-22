@@ -11,12 +11,15 @@
                 {% endif %}
             </div>
 
-            <div style="margin:1rem 0;line-height:1.8;white-space:pre-wrap">{{ question.description | inline_code }}</div>
+            <div style="position:relative;background:#1e293b;padding:1rem;border-radius:0.5rem;margin:1rem 0">
+                <div id="quiz-description" style="line-height:1.8;white-space:pre-wrap;color:#e2e8f0">{{ question.description | inline_code }}</div>
+                <button class="btn btn-secondary" style="position:absolute;top:0.5rem;right:0.5rem;padding:0.2rem 0.5rem;font-size:0.75rem" onclick="copyText('quiz-description', this)">📋 複製</button>
+            </div>
 
             {% if question.hint %}
             <details style="margin:1rem 0">
                 <summary style="cursor:pointer;color:#eab308">💡 提示</summary>
-                <pre style="margin-top:0.5rem"><code>{{ question.hint }}</code></pre>
+                <div style="margin-top:0.5rem;background:#1e293b;padding:0.75rem;border-radius:0.5rem;white-space:pre-wrap;color:#e2e8f0;font-size:0.9rem">{{ question.hint | inline_code }}</div>
             </details>
             {% endif %}
 
@@ -67,4 +70,16 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+function copyText(elementId, btn) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '✅ 已複製';
+        setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    });
+}
+</script>
 {% endblock %}
