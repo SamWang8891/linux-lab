@@ -108,6 +108,11 @@ build {
   }
 
   provisioner "file" {
+    source      = "../../static/"
+    destination = "/opt/linux-lab/static/"
+  }
+
+  provisioner "file" {
     source      = "../nginx/linux-lab.conf"
     destination = "/tmp/linux-lab-nginx.conf"
   }
