@@ -282,6 +282,49 @@ cp "${NGINX_SRC}/linux-lab.conf" /etc/nginx/sites-available/linux-lab
 ln -sf /etc/nginx/sites-available/linux-lab /etc/nginx/sites-enabled/linux-lab
 systemctl enable nginx
 
+# ── Guest additions (VirtualBox / VMware / QEMU) ────────────────────────
+echo ""
+echo "==========================================="
+echo "  安裝虛擬機 Guest Tools"
+echo "==========================================="
+echo ""
+echo "Guest tools 提供共用剪貼簿、自動調整解析度、共用資料夾等功能。"
+echo "安裝全部三種是安全的 — 只有對應的 hypervisor 會啟用。"
+echo ""
+
+read -rp "安裝 VirtualBox Guest Additions? [Y/n] " ans_vbox
+case "${ans_vbox:-y}" in
+    [Yy]*)
+        echo ">>> 安裝 VirtualBox Guest Additions..."
+        apt-get update
+        apt-get install -y --no-install-recommends \
+            virtualbox-guest-utils virtualbox-guest-x11
+        echo ">>> VirtualBox Guest Additions 安裝完成"
+        ;;
+esac
+
+read -rp "安裝 VMware Tools (open-vm-tools)? [Y/n] " ans_vmware
+case "${ans_vmware:-y}" in
+    [Yy]*)
+        echo ">>> 安裝 open-vm-tools..."
+        apt-get update
+        apt-get install -y --no-install-recommends \
+            open-vm-tools open-vm-tools-desktop
+        echo ">>> VMware Tools 安裝完成"
+        ;;
+esac
+
+read -rp "安裝 QEMU Guest Agent (適用 UTM/KVM)? [Y/n] " ans_qemu
+case "${ans_qemu:-y}" in
+    [Yy]*)
+        echo ">>> 安裝 qemu-guest-agent + spice-vdagent..."
+        apt-get update
+        apt-get install -y --no-install-recommends \
+            qemu-guest-agent spice-vdagent
+        echo ">>> QEMU Guest Agent 安裝完成"
+        ;;
+esac
+
 # ── Security hardening ───────────────────────────────────────────────────
 sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config 2>/dev/null || true
 
