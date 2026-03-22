@@ -165,8 +165,11 @@ def provision_container_bg(app_obj, user_id):
 
             _set_provision_status(u, 'init_script', '正在初始化系統與題目檔案...')
             script_path = os.path.join(os.path.dirname(__file__), 'scripts', 'init_container.sh')
-            lxd.exec_in_container(container_name,
-                ['bash', '-c', open(script_path).read()])
+            
+            # Push script and execute it
+            lxd.push_file(container_name, script_path, '/tmp/init.sh')
+            lxd.exec_in_container(container_name, ['bash', '/tmp/init.sh'])
+            lxd.exec_in_container(container_name, ['rm', '/tmp/init.sh'])
 
             _set_provision_status(u, 'creating_guac', '正在設定遠端連線...')
 
