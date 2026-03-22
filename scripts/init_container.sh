@@ -153,6 +153,7 @@ LIMITS
 
 # 1. Block the host gateway IP from inside the container (defense in depth)
 #    Primary protection is at host iptables level, this is a backup
+mkdir -p /etc/network/if-up.d
 cat > /etc/network/if-up.d/block-host << 'BLOCKHOST'
 #!/bin/sh
 # Prevent user from accessing the LXD host gateway
