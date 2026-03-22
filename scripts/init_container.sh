@@ -40,14 +40,13 @@ systemctl start xrdp
 # DNS challenge: use dnsmasq to override foo.com → 0.0.0.0
 # Students must learn to query a specific DNS server (dig @1.1.1.1)
 apt-get install -y --no-install-recommends dnsmasq
-cat > /etc/dnsmasq.d/lab-override.conf << 'DNSCONF'
-# Override foo.com to return 0.0.0.0
-address=/foo.com/0.0.0.0
-# Forward everything else to Cloudflare
-server=1.1.1.1
-DNSCONF
+
 # Point resolv.conf to local dnsmasq
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
+echo "nameserver 127.0.0.53" > /etc/resolv.conf
+
+# Override foo.com with incorrect IP
+echo "foo.com 123.123.123.123" >> /etc/hosts
+
 systemctl enable dnsmasq
 systemctl restart dnsmasq
 
