@@ -76,10 +76,35 @@ source "qemu" "linux-lab" {
 build {
   sources = ["source.qemu.linux-lab"]
 
-  # Copy the local app files into the VM
+  # Copy the main app files into the VM
   provisioner "file" {
-    source      = "../app/"
-    destination = "/opt/linux-lab/"
+    source      = "../../app.py"
+    destination = "/opt/linux-lab/app_local.py"
+  }
+
+  provisioner "file" {
+    source      = "../../models.py"
+    destination = "/opt/linux-lab/models.py"
+  }
+
+  provisioner "file" {
+    source      = "../../config.py"
+    destination = "/opt/linux-lab/config.py"
+  }
+
+  provisioner "file" {
+    source      = "../../quiz_checker.py"
+    destination = "/opt/linux-lab/quiz_checker.py"
+  }
+
+  provisioner "file" {
+    source      = "../../challenges.json"
+    destination = "/opt/linux-lab/challenges.json"
+  }
+
+  provisioner "file" {
+    source      = "../../templates/"
+    destination = "/opt/linux-lab/templates/"
   }
 
   provisioner "file" {
