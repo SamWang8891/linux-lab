@@ -41,10 +41,23 @@
             <button class="btn btn-danger" style="margin:0.5rem" id="reset-btn">🔄 重置機器</button>
         </form>
         <form method="POST" action="{{ url_for('reset_guac') }}" style="display:inline"
-              onsubmit="var pw = prompt('請輸入你的登入密碼以重置遠端連線：'); if(!pw) return false; this.querySelector('[name=password]').value = pw; return true;">
-            <input type="hidden" name="password" value="">
-            <button class="btn btn-secondary" style="margin:0.5rem">🔑 重置遠端連線</button>
+              id="resetGuacForm">
+            <input type="hidden" name="password" id="resetGuacPassword">
+            <button type="button" class="btn btn-secondary" style="margin:0.5rem" onclick="showResetGuacPrompt()">🔑 重置遠端連線</button>
         </form>
+    </div>
+</div>
+
+<!-- Password Modal -->
+<div id="passwordModal" class="modal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center">
+    <div class="card" style="width:100%;max-width:400px;margin:0">
+        <h3 style="margin-bottom:1rem">🔒 重置遠端連線</h3>
+        <p style="margin-bottom:1rem;font-size:0.9rem;color:#94a3b8">請輸入你的登入密碼以進行重置：</p>
+        <input type="password" id="modalPasswordInput" class="form-control" style="width:100%;margin-bottom:1.5rem" autofocus>
+        <div style="display:flex;justify-content:flex-end;gap:0.5rem">
+            <button class="btn btn-secondary" onclick="hideResetGuacPrompt()">取消</button>
+            <button class="btn btn-primary" onclick="submitResetGuac()">重置</button>
+        </div>
     </div>
 </div>
 
@@ -116,6 +129,38 @@ function refreshStatus() {
             }
         });
 }
+
+function showResetGuacPrompt() {
+    document.getElementById('passwordModal').style.display = 'flex';
+    document.getElementById('modalPasswordInput').value = '';
+    document.getElementById('modalPasswordInput').focus();
+}
+
+function hideResetGuacPrompt() {
+    document.getElementById('passwordModal').style.display = 'none';
+}
+
+function submitResetGuac() {
+    const pw = document.getElementById('modalPasswordInput').value;
+    if (!pw) return;
+    document.getElementById('resetGuacPassword').value = pw;
+    document.getElementById('resetGuacForm').submit();
+}
+
+// Close modal if user clicks outside
+window.onclick = function(event) {
+    const modal = document.getElementById('passwordModal');
+    if (event.target == modal) {
+        hideResetGuacPrompt();
+    }
+}
+
+// Support Enter key in password input
+document.getElementById('modalPasswordInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        submitResetGuac();
+    }
+});
 
 refreshStatus();
 // Start polling, will auto-stop when ready
