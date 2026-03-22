@@ -88,7 +88,7 @@ def check_answer(question, answer):
         try:
             r = subprocess.run(
                 ['su', '-c', 'echo ok', 'user'],
-                input='linux-lab-2026\n',
+                input='gdguser\n',
                 capture_output=True, text=True, timeout=5,
             )
             return r.returncode == 0 and 'ok' in r.stdout
