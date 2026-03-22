@@ -19,9 +19,11 @@ sed -i 's/# zh_TW.UTF-8/zh_TW.UTF-8/' /etc/locale.gen
 locale-gen
 
 # Create student user
-useradd -m -s /bin/bash user
-echo "user:user" | chpasswd
-usermod -aG sudo user
+if ! id "user" &>/dev/null; then
+    useradd -m -s /bin/bash user
+    echo "user:user" | chpasswd
+    usermod -aG sudo user
+fi
 
 # Install and configure UFW — block SSH from lab-net (inter-container)
 apt-get install -y --no-install-recommends ufw
