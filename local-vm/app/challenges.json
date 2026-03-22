@@ -121,8 +121,8 @@
   {
     "order": 16,
     "title": "DNS 查詢",
-    "description": "請查詢 `foo.com` 的 A 記錄，並貼上查到的 IP 位址。",
-    "hint": "你的機器預設的 DNS 伺服器可能無法正確解析這個域名。試試指定使用 `1.1.1.1` 作為 DNS 伺服器。\n\n使用 `dig @1.1.1.1 foo.com A`",
+    "description": "請使用 Cloudflare DNS (1.1.1.1) 查詢 `foo.com` 的 A 紀錄，並貼上查到的 IP 位址。",
+    "hint": "你的機器預設的 DNS 伺服器對 foo.com 回傳的結果不正確。試試指定使用 `1.1.1.1` 作為 DNS 伺服器。\n\n使用 `dig @1.1.1.1 foo.com A`",
     "check_type": "text",
     "expected_answer": "50.16.218.27"
   },

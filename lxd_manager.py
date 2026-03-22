@@ -26,13 +26,13 @@ def create_container(name, image='images:debian/12', profile='lab-student',
     ]
     _run(cmd)
 
-    # Wait for network
-    for _ in range(30):
+    # Wait for network (first launch may need image download + boot time)
+    for _ in range(60):
         ip = get_container_ip(name)
         if ip:
             return ip
-        time.sleep(1)
-    raise RuntimeError(f"Container {name} did not get an IP after 30s")
+        time.sleep(2)
+    raise RuntimeError(f"Container {name} did not get an IP after 120s")
 
 
 def delete_container(name):

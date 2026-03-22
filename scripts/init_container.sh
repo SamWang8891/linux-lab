@@ -37,8 +37,19 @@ systemctl enable xrdp
 systemctl start ssh
 systemctl start xrdp
 
-# Intentionally misconfigure DNS for Q16 (dig challenge)
-echo "nameserver 10.99.0.254" > /etc/resolv.conf
+# DNS challenge: use dnsmasq to override foo.com → 0.0.0.0
+# Students must learn to query a specific DNS server (dig @1.1.1.1)
+apt-get install -y --no-install-recommends dnsmasq
+cat > /etc/dnsmasq.d/lab-override.conf << 'DNSCONF'
+# Override foo.com to return 0.0.0.0
+address=/foo.com/0.0.0.0
+# Forward everything else to Cloudflare
+server=1.1.1.1
+DNSCONF
+# Point resolv.conf to local dnsmasq
+echo "nameserver 127.0.0.1" > /etc/resolv.conf
+systemctl enable dnsmasq
+systemctl restart dnsmasq
 
 # Setup challenges directory
 CHAL_DIR="/home/user/challenges"

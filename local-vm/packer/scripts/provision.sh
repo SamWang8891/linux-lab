@@ -40,20 +40,22 @@ X-GNOME-Autostart-enabled=true
 EOF
 chown -R user:user /home/user/.config
 
-# ── Intentionally misconfigure DNS for Q16 (dig challenge) ──────────────
-echo "nameserver 10.99.0.254" > /etc/resolv.conf.lab
-cat > /etc/NetworkManager/dispatcher.d/99-lab-dns << 'SCRIPT'
-#!/bin/bash
-# After network comes up, set the intentionally broken DNS
-cp /etc/resolv.conf.lab /etc/resolv.conf
-SCRIPT
-chmod +x /etc/NetworkManager/dispatcher.d/99-lab-dns 2>/dev/null || true
+# ── DNS challenge: override foo.com locally ──────────────────────────────
+apt-get install -y --no-install-recommends dnsmasq
+cat > /etc/dnsmasq.d/lab-override.conf << 'DNSCONF'
+# Override foo.com to return 0.0.0.0
+address=/foo.com/0.0.0.0
+# Forward everything else to Cloudflare
+server=1.1.1.1
+DNSCONF
+# Point resolv.conf to local dnsmasq
+echo "nameserver 127.0.0.1" > /etc/resolv.conf.lab
 
-# We also write a systemd service as fallback (in case NM dispatcher doesn't fire)
+# Systemd service to apply DNS config after boot
 cat > /etc/systemd/system/lab-dns.service << 'EOF'
 [Unit]
 Description=Set lab DNS config
-After=network-online.target
+After=network-online.target dnsmasq.service
 Wants=network-online.target
 
 [Service]
@@ -65,6 +67,7 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF
 systemctl enable lab-dns.service
+systemctl enable dnsmasq
 
 # ── Setup challenge files ────────────────────────────────────────────────
 CHAL_DIR="/home/user/challenges"
