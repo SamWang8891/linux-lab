@@ -64,13 +64,19 @@ iptables -C INPUT -i lxdbr0 -d 10.99.0.1 -j LAB_HOST_FILTER 2>/dev/null || \
 iptables -C INPUT -i lab-net -d 10.99.0.1 -j LAB_HOST_FILTER 2>/dev/null || \
     iptables -I INPUT -i lab-net -d 10.99.0.1 -j LAB_HOST_FILTER
 
+# Allow DHCP broadcasts (255.255.255.255) — must come before the catch-all DROP
+iptables -C INPUT -i lxdbr0 -d 255.255.255.255 -p udp --dport 67 -j ACCEPT 2>/dev/null || \
+    iptables -I INPUT -i lxdbr0 -d 255.255.255.255 -p udp --dport 67 -j ACCEPT
+iptables -C INPUT -i lab-net -d 255.255.255.255 -p udp --dport 67 -j ACCEPT 2>/dev/null || \
+    iptables -I INPUT -i lab-net -d 255.255.255.255 -p udp --dport 67 -j ACCEPT
+
 # Block containers from reaching host on ANY host IP (not just 10.99.0.1)
 # This prevents access via host's public IP, 127.0.0.1, etc.
 # But allow FORWARD (NAT internet + guacd) — only block INPUT to host itself
 iptables -C INPUT -i lxdbr0 ! -d 10.99.0.0/24 -j DROP 2>/dev/null || \
-    iptables -I INPUT -i lxdbr0 ! -d 10.99.0.0/24 -j DROP
+    iptables -A INPUT -i lxdbr0 ! -d 10.99.0.0/24 -j DROP
 iptables -C INPUT -i lab-net ! -d 10.99.0.0/24 -j DROP 2>/dev/null || \
-    iptables -I INPUT -i lab-net ! -d 10.99.0.0/24 -j DROP
+    iptables -A INPUT -i lab-net ! -d 10.99.0.0/24 -j DROP
 
 # Block access to common host-local services via FORWARD too
 # (metadata service, cloud-init, etc.)

@@ -112,8 +112,11 @@ iptables -A LAB_HOST_FILTER -j DROP
 for BRIF in lxdbr0 lab-net; do
     iptables -C INPUT -i $BRIF -d 10.99.0.1 -j LAB_HOST_FILTER 2>/dev/null || \
         iptables -I INPUT -i $BRIF -d 10.99.0.1 -j LAB_HOST_FILTER
+    # Allow DHCP broadcasts (255.255.255.255) before the catch-all DROP
+    iptables -C INPUT -i $BRIF -d 255.255.255.255 -p udp --dport 67 -j ACCEPT 2>/dev/null || \
+        iptables -I INPUT -i $BRIF -d 255.255.255.255 -p udp --dport 67 -j ACCEPT
     iptables -C INPUT -i $BRIF ! -d 10.99.0.0/24 -j DROP 2>/dev/null || \
-        iptables -I INPUT -i $BRIF ! -d 10.99.0.0/24 -j DROP
+        iptables -A INPUT -i $BRIF ! -d 10.99.0.0/24 -j DROP
 done
 
 # Block metadata service
