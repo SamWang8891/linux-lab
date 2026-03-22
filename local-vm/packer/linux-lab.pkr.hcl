@@ -46,8 +46,7 @@ source "qemu" "linux-lab" {
     ["-machine", "virt"],
     ["-cpu", "host"],
     ["-accel", "hvf"],
-    ["-drive", "if=pflash,format=raw,readonly=on,file=/opt/homebrew/share/qemu/edk2-aarch64-code.fd"],
-    ["-drive", "if=pflash,format=raw,file=vars-arm64.fd"],
+    ["-bios", "/opt/homebrew/share/qemu/edk2-aarch64-code.fd"],
   ] : []
 
   accelerator      = var.arch == "arm64" ? "hvf" : "kvm"
