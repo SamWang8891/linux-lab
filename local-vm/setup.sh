@@ -63,7 +63,7 @@ cat > /home/user/.config/autostart/xfce4-terminal.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Terminal
-Exec=xfce4-terminal
+Exec=xfce4-terminal --default-working-directory=/home/user
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
