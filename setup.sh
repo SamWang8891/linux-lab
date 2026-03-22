@@ -59,6 +59,13 @@ if ! command -v lxd &>/dev/null && ! command -v lxc &>/dev/null; then
     lxd init --auto
 fi
 
+# Ensure default storage pool exists
+if ! lxc storage show default &>/dev/null 2>&1; then
+    info "建立 LXD 預設儲存池..."
+    lxc storage create default dir
+    ok "儲存池 default 已建立"
+fi
+
 # Check if lab-net exists
 if ! lxc network show lab-net &>/dev/null 2>&1; then
     info "設定 LXD 網路和 Profile..."
