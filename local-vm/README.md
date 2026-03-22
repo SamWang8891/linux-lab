@@ -17,6 +17,9 @@ sudo apt install -y packer qemu-system-x86 qemu-system-arm qemu-utils genisoimag
 ```bash
 brew tap hashicorp/tap
 brew install hashicorp/tap/packer qemu
+
+# Apple Silicon (M1/M2/M3/M4) 額外需求 (QEMU EFI Firmware)
+# 如果 build 失敗，請確認 /opt/homebrew/share/qemu/ 下有 edk2-aarch64-code.fd
 ```
 
 ---

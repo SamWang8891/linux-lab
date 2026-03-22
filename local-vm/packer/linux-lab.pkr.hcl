@@ -44,11 +44,13 @@ source "qemu" "linux-lab" {
 
   qemuargs = var.arch == "arm64" ? [
     ["-machine", "virt"],
-    ["-cpu", "cortex-a72"],
-    ["-bios", "/usr/share/qemu-efi-aarch64/QEMU_EFI.fd"],
+    ["-cpu", "host"],
+    ["-accel", "hvf"],
+    ["-drive", "if=pflash,format=raw,readonly=on,file=/opt/homebrew/share/qemu/edk2-aarch64-code.fd"],
+    ["-drive", "if=pflash,format=raw,file=vars-arm64.fd"],
   ] : []
 
-  accelerator      = "kvm"
+  accelerator      = var.arch == "arm64" ? "hvf" : "kvm"
   cpus             = 2
   memory           = 2048
   headless         = true
