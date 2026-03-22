@@ -53,7 +53,7 @@ cat > /home/user/.config/autostart/quiz-browser.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Linux Lab Quiz
-Exec=firefox-esr
+Exec=firefox-esr http://localhost:80
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
