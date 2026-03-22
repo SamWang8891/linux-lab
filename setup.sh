@@ -87,16 +87,19 @@ info "設定 Docker → LXD 網路路由 (guacd 需要連到 10.99.0.0/24)..."
 # Add route so Docker containers (guacd) can reach LXD containers
 # Check if the route already exists
 if ! ip route show | grep -q '10.99.0.0/24'; then
-    ip route add 10.99.0.0/24 dev lxdbr0 2>/dev/null || \
     ip route add 10.99.0.0/24 dev lab-net 2>/dev/null || \
+    ip route add 10.99.0.0/24 dev lxdbr0 2>/dev/null || \
     warn "無法新增路由到 10.99.0.0/24，guacd 可能無法連到容器"
 fi
 
 # Allow forwarding from docker to lxd network
-iptables -C FORWARD -i docker0 -o lxdbr0 -j ACCEPT 2>/dev/null || \
-    iptables -I FORWARD -i docker0 -o lxdbr0 -j ACCEPT 2>/dev/null || true
-iptables -C FORWARD -i lxdbr0 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \
-    iptables -I FORWARD -i lxdbr0 -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
+# Cover both possible bridge names (lxdbr0 and lab-net)
+for BRIF in lxdbr0 lab-net; do
+    iptables -C FORWARD -i docker0 -o $BRIF -j ACCEPT 2>/dev/null || \
+        iptables -I FORWARD -i docker0 -o $BRIF -j ACCEPT 2>/dev/null || true
+    iptables -C FORWARD -i $BRIF -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \
+        iptables -I FORWARD -i $BRIF -o docker0 -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || true
+done
 
 # ─── Host protection: block container → host access ─────────────────────
 info "設定容器安全隔離規則..."
