@@ -21,7 +21,7 @@ echo "=== [1/8] Installing system packages ==="
 apt-get update
 apt-get install -y --no-install-recommends \
     nginx python3 python3-venv python3-pip \
-    xfce4 xfce4-terminal xfce4-goodies lightdm \
+    kde-plasma-desktop konsole dolphin \
     chromium dbus-x11 \
     nano vim curl wget man-db dnsutils \
     net-tools iproute2 procps htop \
@@ -63,7 +63,7 @@ cat > /home/user/.config/autostart/xfce4-terminal.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Terminal
-Exec=xfce4-terminal --default-working-directory=/home/user
+Exec=konsole --workdir /home/user
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
@@ -73,7 +73,7 @@ cat > /home/user/.config/autostart/thunar.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=File Manager
-Exec=thunar /home/user/challenges
+Exec=dolphin /home/user/challenges
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
