@@ -4,7 +4,7 @@
 # Run this as root inside a fresh Debian 12 (Bookworm) VM.
 #
 # Usage:
-#   1. Install Debian 12 in VirtualBox (minimal, no desktop — script installs XFCE)
+#   1. Install Debian 12 in a VM (minimal, no desktop — script installs KDE Plasma)
 #   2. Copy this entire local-vm/ folder into the VM (e.g. via shared folder or scp)
 #   3. cd /path/to/local-vm && sudo bash setup.sh
 # ============================================================================
@@ -59,7 +59,7 @@ NoDisplay=false
 X-GNOME-Autostart-enabled=true
 EOF
 
-cat > /home/user/.config/autostart/xfce4-terminal.desktop << 'EOF'
+cat > /home/user/.config/autostart/konsole.desktop << 'EOF'
 [Desktop Entry]
 Type=Application
 Name=Terminal

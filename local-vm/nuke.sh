@@ -30,7 +30,7 @@ rm -rf /opt/linux-lab
 rm -rf /home/user/challenges
 rm -rf /home/user/documents
 rm -rf /home/user/.config/autostart/quiz-browser.desktop
-rm -rf /home/user/.config/autostart/xfce4-terminal.desktop
+rm -rf /home/user/.config/autostart/konsole.desktop
 rm -rf /home/user/.config/autostart/thunar.desktop
 
 echo "=== [4/5] Clearing browser and system logs ==="
