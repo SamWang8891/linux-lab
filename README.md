@@ -116,7 +116,7 @@ gunicorn -w 4 -b 127.0.0.1:5000 app:app
 
 ## 離線版本（Local VM）
 
-提供 VirtualBox / UTM 虛擬機映像，讓學生在沒有伺服器的情況下，於自己電腦上練習。
+提供 VMware / VirtualBox / UTM 虛擬機映像，讓學生在沒有伺服器的情況下，於自己電腦上練習。
 
 詳見 [`local-vm/README.md`](local-vm/README.md)。
 

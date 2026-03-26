@@ -88,7 +88,7 @@ sudo bash setup.sh
 ### Step 3: 測試
 
 1. 重新開機: `sudo reboot`
-2. VM 應自動登入 XFCE 桌面
+2. VM 應自動登入 KDE 桌面
 3. Firefox 自動開啟 `http://localhost`（練習介面）
 4. Terminal 自動開啟
 5. 確認功能正常後 → 關機
@@ -217,6 +217,6 @@ qemu-img convert -f vmdk -O qcow2 disk.vmdk disk.qcow2
 - **權限:** 支援 `sudo`（需輸入密碼 `user`）
 
 ### 虛擬機規格
-- **OS:** Debian 12 (Bookworm) + XFCE 桌面環境
+- **OS:** Debian 12 (Bookworm) + KDE Plasma 桌面環境
 - **資源:** 2 vCPU, 2GB RAM, 8GB Disk
 - **重置進度:** 點選練習介面上的 🔄 **Reset** 按鈕即可清除進度
